@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Student Online Registration - EduPhysics Academy">
+    <title>Student Registration - EduPhysics Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles/tuition.css">
+</head>
+
+<body class="dashboard-page">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-dashboard">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html" class="nav-logo">
+                    <span class="logo-icon">🔬</span>
+                    <span class="logo-text">EduPhysics<span class="logo-accent">Academy</span></span>
+                </a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link">
+                    <span class="nav-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="student-register.html" class="nav-link active">
+                    <span class="nav-icon">📝</span>
+                    <span>Register</span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html" class="btn btn-secondary">
+                    <span>🔐</span> Admin Login
+                </a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="header-text">
+                        <h1>
+                            <span class="header-icon">📝</span>
+                            Online Student Registration
+                        </h1>
+                        <p>Register for Physics, Chemistry, and Combined Mathematics classes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Form Section -->
+        <section class="form-section">
+            <div class="container">
+                <div class="form-wrapper glass-card">
+                    <div class="form-header">
+                        <h2>Student Registration Form</h2>
+                        <p>Fill in your details and upload payment receipt to complete registration</p>
+                    </div>
+
+                    <!-- Success/Error Messages -->
+                    <div class="alert alert-success hidden" id="successAlert">
+                        <span class="alert-icon">✅</span>
+                        <span class="alert-text">Registration submitted successfully! We will verify your payment and
+                            confirm your enrollment.</span>
+                        <button class="alert-close" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="alert alert-error hidden" id="errorAlert">
+                        <span class="alert-icon">❌</span>
+                        <span class="alert-text" id="errorText">An error occurred</span>
+                        <button class="alert-close" aria-label="Close">&times;</button>
+                    </div>
+
+                    <form id="studentRegistrationForm" class="registration-form">
+                        <!-- Personal Information -->
+                        <div class="form-section-title">
+                            <span class="section-icon">👤</span>
+                            <span>Personal Information</span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name <span class="required">*</span></label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">👤</span>
+                                    <input type="text" id="firstName" name="firstName" placeholder="Enter first name"
+                                        required>
+                                </div>
+                                <span class="form-error" id="firstNameError"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name <span class="required">*</span></label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">👤</span>
+                                    <input type="text" id="lastName" name="lastName" placeholder="Enter last name"
+                                        required>
+                                </div>
+                                <span class="form-error" id="lastNameError"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email Address <span class="required">*</span></label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">📧</span>
+                                    <input type="email" id="email" name="email" placeholder="student@example.com"
+                                        required>
+                                </div>
+                                <span class="form-error" id="emailError"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="mobile">Mobile Number <span class="required">*</span></label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">📱</span>
+                                    <input type="tel" id="mobile" name="mobile" placeholder="+94 77 123 4567" required>
+                                </div>
+                                <span class="form-error" id="mobileError"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Gender <span class="required">*</span></label>
+                                <div class="radio-group">
+                                    <label class="radio-label">
+                                        <input type="radio" name="gender" value="male" required>
+                                        <span class="radio-custom"></span>
+                                        <span class="radio-text">👨 Male</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="gender" value="female">
+                                        <span class="radio-custom"></span>
+                                        <span class="radio-text">👩 Female</span>
+                                    </label>
+                                </div>
+                                <span class="form-error" id="genderError"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="address">Address <span class="required">*</span></label>
+                            <div class="input-wrapper textarea-wrapper">
+                                <span class="input-icon">📍</span>
+                                <textarea id="address" name="address" placeholder="Enter full address" rows="3"
+                                    required></textarea>
+                            </div>
+                            <span class="form-error" id="addressError"></span>
+                        </div>
+
+                        <!-- Class Information -->
+                        <div class="form-section-title">
+                            <span class="section-icon">📚</span>
+                            <span>Class Information</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Select Classes <span class="required">*</span></label>
+                            <p class="form-hint">Select one or more classes (Rs. 1,000 per class)</p>
+                            <div class="checkbox-group class-selection">
+                                <label class="checkbox-label class-option physics">
+                                    <input type="checkbox" name="classes" value="physics">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="class-icon">🔬</span>
+                                    <span class="class-name">Physics</span>
+                                    <span class="class-price">Rs. 1,000</span>
+                                </label>
+                                <label class="checkbox-label class-option chemistry">
+                                    <input type="checkbox" name="classes" value="chemistry">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="class-icon">⚗️</span>
+                                    <span class="class-name">Chemistry</span>
+                                    <span class="class-price">Rs. 1,000</span>
+                                </label>
+                                <label class="checkbox-label class-option combined-maths">
+                                    <input type="checkbox" name="classes" value="combined-maths">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="class-icon">📐</span>
+                                    <span class="class-name">Combined Maths</span>
+                                    <span class="class-price">Rs. 1,000</span>
+                                </label>
+                            </div>
+                            <span class="form-error" id="classesError"></span>
+                        </div>
+
+                        <!-- Payment Information -->
+                        <div class="form-section-title">
+                            <span class="section-icon">💳</span>
+                            <span>Payment Information</span>
+                        </div>
+
+                        <!-- Bank Details Card -->
+                        <div class="payment-info-card glass-card">
+                            <div class="payment-header">
+                                <span class="payment-icon">🏦</span>
+                                <h3>Bank Transfer Details</h3>
+                            </div>
+                            <div class="payment-details">
+                                <div class="payment-row">
+                                    <span class="payment-label">Bank Name:</span>
+                                    <span class="payment-value">Bank of Ceylon</span>
+                                </div>
+                                <div class="payment-row">
+                                    <span class="payment-label">Branch:</span>
+                                    <span class="payment-value">Colombo 07</span>
+                                </div>
+                                <div class="payment-row">
+                                    <span class="payment-label">Account Name:</span>
+                                    <span class="payment-value">EduPhysics Academy</span>
+                                </div>
+                                <div class="payment-row">
+                                    <span class="payment-label">Account Number:</span>
+                                    <span class="payment-value highlight">1234567890</span>
+                                </div>
+                            </div>
+                            <div class="payment-note">
+                                <span class="note-icon">ℹ️</span>
+                                <p>Transfer the registration fee based on selected classes and upload the receipt below.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="registrationFee">Registration Fee <span class="required">*</span></label>
+                                <div class="input-wrapper">
+                                    <span class="input-icon">💰</span>
+                                    <select id="registrationFee" name="registrationFee" required>
+                                        <option value="">Select fee amount</option>
+                                        <option value="1000">Rs. 1,000 (Single Class)</option>
+                                        <option value="2000">Rs. 2,000 (Two Classes)</option>
+                                        <option value="3000">Rs. 3,000 (All Classes)</option>
+                                    </select>
+                                </div>
+                                <span class="form-error" id="registrationFeeError"></span>
+                            </div>
+                        </div>
+
+                        <!-- Payment Receipt Upload -->
+                        <div class="form-group" id="receiptUploadSection">
+                            <label for="paymentReceipt">Payment Receipt <span class="required">*</span></label>
+                            <p class="form-hint">Upload a clear photo or scan of your bank transfer receipt (Max 5MB,
+                                JPG/PNG/PDF)</p>
+                            <div class="file-upload-wrapper">
+                                <div class="file-upload-area" id="uploadArea">
+                                    <div class="upload-icon">📤</div>
+                                    <p class="upload-text">Drag & drop your receipt here or <span
+                                            class="upload-link">browse files</span></p>
+                                    <p class="upload-formats">Supported: JPG, PNG, PDF (Max 5MB)</p>
+                                    <input type="file" id="paymentReceipt" name="paymentReceipt"
+                                        accept="image/jpeg,image/png,application/pdf" hidden>
+                                </div>
+                                <div class="file-preview hidden" id="filePreview">
+                                    <div class="preview-content">
+                                        <img id="previewImage" alt="Receipt preview" class="hidden">
+                                        <div class="pdf-icon hidden" id="pdfIcon">📄</div>
+                                    </div>
+                                    <div class="file-info">
+                                        <span class="file-name" id="fileName"></span>
+                                        <span class="file-size" id="fileSize"></span>
+                                    </div>
+                                    <button type="button" class="btn btn-danger btn-small" id="removeFile">
+                                        <span>🗑️</span> Remove
+                                    </button>
+                                </div>
+                            </div>
+                            <span class="form-error" id="paymentReceiptError"></span>
+                        </div>
+
+                        <!-- Fee Summary -->
+                        <div class="fee-summary glass-card">
+                            <div class="summary-header">
+                                <span class="summary-icon">💳</span>
+                                <span>Registration Summary</span>
+                            </div>
+                            <div class="summary-content">
+                                <div class="summary-row">
+                                    <span>Selected Classes:</span>
+                                    <span id="selectedClassesText">None selected</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Number of Classes:</span>
+                                    <span id="classCount">0</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total Fee:</span>
+                                    <span id="totalFee">Rs. 0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="index.html" class="btn btn-secondary btn-large">
+                                <span>◀</span> Back to Home
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-glow btn-large">
+                                <span class="btn-text"><span>📝</span> Submit Registration</span>
+                                <span class="btn-loader hidden">
+                                    <span class="loader"></span>
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer dashboard-footer">
+        <div class="footer-content">
+            <div class="container">
+                <div class="footer-main">
+                    <div class="footer-brand">
+                        <span class="logo-icon">🔬</span>
+                        <span class="logo-text">EduPhysics<span class="logo-accent">Academy</span></span>
+                    </div>
+                    <div class="footer-contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <span>+94 77 123 4567</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            <span>info@eduphysics.lk</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📍</span>
+                            <span>123 Education Lane, Colombo 07</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 EduPhysics Academy. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/student-register.js"></script>
+</body>
+
+</html>

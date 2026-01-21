@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Student Management - EduPhysics Academy">
+    <title>Student Management - EduPhysics Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles/tuition.css">
+</head>
+
+<body class="dashboard-page">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-dashboard">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="register.html" class="nav-logo">
+                    <span class="logo-icon">🔬</span>
+                    <span class="logo-text">EduPhysics<span class="logo-accent">Academy</span></span>
+                </a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="register.html" class="nav-link">
+                    <span class="nav-icon">📝</span>
+                    <span>Registration</span>
+                </a>
+                <a href="manage.html" class="nav-link active">
+                    <span class="nav-icon">👥</span>
+                    <span>Students</span>
+                </a>
+                <a href="finance.html" class="nav-link">
+                    <span class="nav-icon">💰</span>
+                    <span>Finance</span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <div class="admin-badge">
+                    <span class="admin-icon">👤</span>
+                    <span class="admin-name">Admin</span>
+                </div>
+                <button class="btn btn-logout" id="logoutBtn">
+                    <span class="logout-icon">🚪</span>
+                    <span>Logout</span>
+                </button>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="header-text">
+                        <h1>
+                            <span class="header-icon">👥</span>
+                            Student Management
+                        </h1>
+                        <p>View, edit, and manage all registered students</p>
+                    </div>
+                    <div class="header-actions">
+                        <a href="register.html" class="btn btn-primary btn-glow">
+                            <span>➕</span> Add New Student
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <section class="analytics-section">
+            <div class="container">
+                <div class="analytics-header">
+                    <h2>
+                        <span class="section-icon">📊</span>
+                        Student Analytics
+                    </h2>
+                </div>
+                <div class="analytics-grid">
+                    <!-- Total Students Card -->
+                    <div class="analytics-card glass-card total-card">
+                        <div class="card-icon-wrap">
+                            <span class="card-icon">👥</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="card-value" id="totalStudents">0</span>
+                            <span class="card-label">Total Students</span>
+                        </div>
+                    </div>
+
+                    <!-- Gender Distribution -->
+                    <div class="analytics-card glass-card gender-card">
+                        <div class="card-header">
+                            <span class="card-title">Gender Distribution</span>
+                        </div>
+                        <div class="card-stats">
+                            <div class="stat-item male">
+                                <span class="stat-icon">👨</span>
+                                <span class="stat-value" id="maleCount">0</span>
+                                <span class="stat-label">Male</span>
+                            </div>
+                            <div class="stat-item female">
+                                <span class="stat-icon">👩</span>
+                                <span class="stat-value" id="femaleCount">0</span>
+                                <span class="stat-label">Female</span>
+                            </div>
+                        </div>
+                        <div class="gender-bar">
+                            <div class="bar-male" id="maleBar" style="width: 50%"></div>
+                            <div class="bar-female" id="femaleBar" style="width: 50%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Class Distribution -->
+                    <div class="analytics-card glass-card class-card">
+                        <div class="card-header">
+                            <span class="card-title">Class Distribution</span>
+                        </div>
+                        <div class="class-stats">
+                            <div class="class-stat physics">
+                                <span class="class-icon">🔬</span>
+                                <span class="class-name">Physics</span>
+                                <span class="class-count" id="physicsCount">0</span>
+                            </div>
+                            <div class="class-stat chemistry">
+                                <span class="class-icon">⚗️</span>
+                                <span class="class-name">Chemistry</span>
+                                <span class="class-count" id="chemistryCount">0</span>
+                            </div>
+                            <div class="class-stat maths">
+                                <span class="class-icon">📐</span>
+                                <span class="class-name">Combined Maths</span>
+                                <span class="class-count" id="mathsCount">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Registration Trend -->
+                    <div class="analytics-card glass-card trend-card">
+                        <div class="card-header">
+                            <span class="card-title">Recent Registrations</span>
+                        </div>
+                        <div class="trend-stats">
+                            <div class="trend-item">
+                                <span class="trend-label">This Week</span>
+                                <span class="trend-value" id="weekCount">0</span>
+                            </div>
+                            <div class="trend-item">
+                                <span class="trend-label">This Month</span>
+                                <span class="trend-value" id="monthCount">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Student List Section -->
+        <section class="student-list-section">
+            <div class="container">
+                <div class="list-header">
+                    <h2>
+                        <span class="section-icon">📋</span>
+                        Student List
+                        <!-- Pending Verification Badge -->
+                        <span class="pending-badge hidden" id="pendingBadge" title="Pending Verification">
+                            <span class="pending-icon">⏳</span>
+                            <span class="pending-count" id="pendingVerificationCount">0</span>
+                            <span class="pending-text">Pending</span>
+                        </span>
+                    </h2>
+                    <div class="list-controls">
+                        <!-- Search -->
+                        <div class="search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchInput" placeholder="Search students..." class="search-input">
+                            <button class="search-clear hidden" id="searchClear"
+                                aria-label="Clear search">&times;</button>
+                        </div>
+                        <!-- Filters -->
+                        <div class="filter-group">
+                            <select id="genderFilter" class="filter-select">
+                                <option value="">All Genders</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                            <select id="classFilter" class="filter-select">
+                                <option value="">All Classes</option>
+                                <option value="physics">Physics</option>
+                                <option value="chemistry">Chemistry</option>
+                                <option value="combined-maths">Combined Maths</option>
+                            </select>
+                            <input type="month" id="monthFilter" class="filter-select month-filter"
+                                title="Filter by registration month">
+                        </div>
+                        <!-- Delete All Button -->
+                        <button class="btn btn-danger delete-all-btn" id="deleteAllBtn"
+                            title="Delete All Data (End of Period)">
+                            <span>🗑️</span> Delete All
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Student Table -->
+                <div class="table-container glass-card">
+                    <table class="student-table" id="studentTable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <span class="th-content">
+                                        <span>#</span>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span class="th-content sortable" data-sort="name">
+                                        <span>Name</span>
+                                        <span class="sort-icon">↕️</span>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span class="th-content">
+                                        <span>Mobile</span>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span class="th-content">
+                                        <span>Gender</span>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span class="th-content">
+                                        <span>Classes</span>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span class="th-content sortable" data-sort="date">
+                                        <span>Reg. Date</span>
+                                        <span class="sort-icon">↕️</span>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span class="th-content">
+                                        <span>Fee</span>
+                                    </span>
+                                </th>
+                                <th>
+                                    <span class="th-content">
+                                        <span>Actions</span>
+                                    </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <!-- Student rows will be inserted here -->
+                        </tbody>
+                    </table>
+
+                    <!-- Empty State -->
+                    <div class="empty-state hidden" id="emptyState">
+                        <div class="empty-icon">📭</div>
+                        <h3>No Students Found</h3>
+                        <p>No students match your search criteria or no students have been registered yet.</p>
+                        <a href="register.html" class="btn btn-primary">
+                            <span>➕</span> Register First Student
+                        </a>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div class="loading-state hidden" id="loadingState">
+                        <div class="loader-large"></div>
+                        <p>Loading students...</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <button class="page-btn prev" id="prevPage" disabled>
+                        <span>◀</span> Previous
+                    </button>
+                    <div class="page-numbers" id="pageNumbers">
+                        <!-- Page numbers will be inserted here -->
+                    </div>
+                    <button class="page-btn next" id="nextPage">
+                        Next <span>▶</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- View Student Modal -->
+    <div class="modal-overlay hidden" id="viewModal">
+        <div class="modal-container modal-large">
+            <div class="modal-content glass-card">
+                <button class="modal-close" id="viewModalClose" aria-label="Close modal">
+                    <span>&times;</span>
+                </button>
+                <div class="modal-header">
+                    <h2><span class="modal-icon">👁️</span> Student Details</h2>
+                </div>
+                <div class="student-details" id="studentDetails">
+                    <!-- Student details will be inserted here -->
+                </div>
+
+                <!-- Payment Receipt Section (for online registrations) -->
+                <div class="receipt-section hidden" id="receiptSection">
+                    <div class="receipt-header">
+                        <h3><span class="section-icon">🧾</span> Payment Receipt</h3>
+                    </div>
+                    <div class="receipt-preview" id="receiptPreview">
+                        <!-- Receipt image will be shown here -->
+                    </div>
+                </div>
+
+                <!-- Verification Actions (for pending online registrations) -->
+                <div class="verification-actions hidden" id="verificationActions">
+                    <div class="verification-header">
+                        <h3><span class="section-icon">✅</span> Verify Registration</h3>
+                    </div>
+                    <div class="verification-buttons">
+                        <button class="btn btn-success" id="verifyBtn">
+                            <span>✅</span> Verify & Approve
+                        </button>
+                        <button class="btn btn-danger" id="rejectBtn">
+                            <span>❌</span> Reject
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete All Confirmation Modal -->
+    <div class="modal-overlay hidden" id="deleteAllModal">
+        <div class="modal-container">
+            <div class="modal-content glass-card delete-all-modal">
+                <button class="modal-close" id="deleteAllModalClose" aria-label="Close modal">
+                    <span>&times;</span>
+                </button>
+                <div class="modal-header danger-header">
+                    <h2><span class="modal-icon">⚠️</span> End of Period - Delete All Data</h2>
+                </div>
+                <div class="delete-all-content">
+                    <div class="warning-box">
+                        <div class="warning-icon">🚨</div>
+                        <div class="warning-text">
+                            <h3>Warning: This action cannot be undone!</h3>
+                            <p>You are about to permanently delete all student registration data and payment records.
+                                This is typically done at the end of a class period.</p>
+                        </div>
+                    </div>
+
+                    <div class="data-summary-box" id="deleteDataSummary">
+                        <!-- Summary will be populated by JavaScript -->
+                    </div>
+
+                    <div class="download-prompt">
+                        <div class="download-header">
+                            <div class="download-icon">📥</div>
+                            <div class="download-info">
+                                <h4>Download Data Before Deleting</h4>
+                                <p>We recommend downloading a backup of all student data before proceeding.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary download-btn" id="downloadDataBtn">
+                            <span>📊</span> Download Data (CSV)
+                        </button>
+                    </div>
+
+                    <div class="delete-confirmation">
+                        <label class="confirm-checkbox">
+                            <input type="checkbox" id="confirmDeleteCheckbox">
+                            <span class="checkmark"></span>
+                            <span class="confirm-text">I understand this action is irreversible and have downloaded my
+                                data backup.</span>
+                        </label>
+                    </div>
+
+                    <div class="delete-all-actions">
+                        <button class="btn btn-secondary" id="cancelDeleteAll">
+                            <span>✖️</span> Cancel
+                        </button>
+                        <button class="btn btn-danger" id="confirmDeleteAll" disabled>
+                            <span>🗑️</span> Delete All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div class="modal-overlay hidden" id="editModal">
+        <div class="modal-container modal-large">
+            <div class="modal-content glass-card">
+                <button class="modal-close" id="editModalClose" aria-label="Close modal">
+                    <span>&times;</span>
+                </button>
+                <div class="modal-header">
+                    <h2><span class="modal-icon">✏️</span> Edit Student</h2>
+                </div>
+                <form id="editForm" class="edit-form">
+                    <input type="hidden" id="editStudentId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editFirstName">First Name</label>
+                            <input type="text" id="editFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editLastName">Last Name</label>
+                            <input type="text" id="editLastName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editEmail">Email</label>
+                            <input type="email" id="editEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMobile">Mobile</label>
+                            <input type="tel" id="editMobile" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="editGender" value="male" required>
+                                <span class="radio-custom"></span>
+                                <span class="radio-text">👨 Male</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="editGender" value="female">
+                                <span class="radio-custom"></span>
+                                <span class="radio-text">👩 Female</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAddress">Address</label>
+                        <textarea id="editAddress" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Classes</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="editClasses" value="physics">
+                                <span class="checkbox-custom"></span>
+                                <span>🔬 Physics</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="editClasses" value="chemistry">
+                                <span class="checkbox-custom"></span>
+                                <span>⚗️ Chemistry</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="editClasses" value="combined-maths">
+                                <span class="checkbox-custom"></span>
+                                <span>📐 Combined Maths</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editRegisterDate">Registration Date</label>
+                            <input type="date" id="editRegisterDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editFee">Registration Fee</label>
+                            <select id="editFee" required>
+                                <option value="1000">Rs. 1,000</option>
+                                <option value="2000">Rs. 2,000</option>
+                                <option value="3000">Rs. 3,000</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="editCancelBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-glow">
+                            <span class="btn-text">💾 Save Changes</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay hidden" id="deleteModal">
+        <div class="modal-container modal-small">
+            <div class="modal-content glass-card">
+                <div class="modal-header delete-header">
+                    <span class="modal-icon delete-icon">⚠️</span>
+                    <h2>Confirm Delete</h2>
+                </div>
+                <div class="delete-message">
+                    <p>Are you sure you want to delete <strong id="deleteStudentName"></strong>?</p>
+                    <p class="delete-warning">This action cannot be undone.</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="deleteCancelBtn">Cancel</button>
+                    <button class="btn btn-danger" id="deleteConfirmBtn">
+                        <span>🗑️</span> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer dashboard-footer">
+        <div class="footer-content">
+            <div class="container">
+                <div class="footer-main">
+                    <div class="footer-brand">
+                        <span class="logo-icon">🔬</span>
+                        <span class="logo-text">EduPhysics<span class="logo-accent">Academy</span></span>
+                    </div>
+                    <div class="footer-contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <span>+94 77 123 4567</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            <span>info@eduphysics.lk</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📍</span>
+                            <span>123 Education Lane, Colombo 07</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 EduPhysics Academy. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/manage.js"></script>
+</body>
+
+</html>
