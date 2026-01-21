@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Finance Analysis - EduPhysics Academy">
+    <title>Finance Analysis - EduPhysics Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles/tuition.css">
+</head>
+
+<body class="dashboard-page">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-dashboard">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="register.html" class="nav-logo">
+                    <span class="logo-icon">🔬</span>
+                    <span class="logo-text">EduPhysics<span class="logo-accent">Academy</span></span>
+                </a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="register.html" class="nav-link">
+                    <span class="nav-icon">📝</span>
+                    <span>Registration</span>
+                </a>
+                <a href="manage.html" class="nav-link">
+                    <span class="nav-icon">👥</span>
+                    <span>Students</span>
+                </a>
+                <a href="finance.html" class="nav-link active">
+                    <span class="nav-icon">💰</span>
+                    <span>Finance</span>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <div class="admin-badge">
+                    <span class="admin-icon">👤</span>
+                    <span class="admin-name">Admin</span>
+                </div>
+                <button class="btn btn-logout" id="logoutBtn">
+                    <span class="logout-icon">🚪</span>
+                    <span>Logout</span>
+                </button>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="header-text">
+                        <h1>
+                            <span class="header-icon">💰</span>
+                            Finance Analysis
+                        </h1>
+                        <p>Track revenue, analyze trends, and manage financial data</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" id="exportBtn">
+                            <span>📊</span> Export Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Overview Section -->
+        <section class="finance-overview">
+            <div class="container">
+                <div class="overview-grid">
+                    <!-- Total Revenue Card -->
+                    <div class="finance-card glass-card revenue-card">
+                        <div class="card-glow revenue-glow"></div>
+                        <div class="card-icon-wrap revenue-icon-wrap">
+                            <span class="card-icon">💵</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="card-label">Total Revenue</span>
+                            <span class="card-value revenue-value">Rs. <span id="totalRevenue">0</span></span>
+                            <span class="card-subtitle" id="totalStudentsRevenue">From 0 students</span>
+                        </div>
+                    </div>
+
+                    <!-- This Month Revenue -->
+                    <div class="finance-card glass-card month-card">
+                        <div class="card-glow month-glow"></div>
+                        <div class="card-icon-wrap month-icon-wrap">
+                            <span class="card-icon">📅</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="card-label">This Month</span>
+                            <span class="card-value month-value">Rs. <span id="monthRevenue">0</span></span>
+                            <span class="card-subtitle" id="monthStudents">0 registrations</span>
+                        </div>
+                    </div>
+
+                    <!-- Average Fee -->
+                    <div class="finance-card glass-card avg-card">
+                        <div class="card-glow avg-glow"></div>
+                        <div class="card-icon-wrap avg-icon-wrap">
+                            <span class="card-icon">📈</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="card-label">Average Fee</span>
+                            <span class="card-value avg-value">Rs. <span id="avgFee">0</span></span>
+                            <span class="card-subtitle">Per student</span>
+                        </div>
+                    </div>
+
+                    <!-- Classes Revenue -->
+                    <div class="finance-card glass-card classes-card">
+                        <div class="card-glow classes-glow"></div>
+                        <div class="card-icon-wrap classes-icon-wrap">
+                            <span class="card-icon">📚</span>
+                        </div>
+                        <div class="card-content">
+                            <span class="card-label">Most Popular</span>
+                            <span class="card-value classes-value" id="popularClass">-</span>
+                            <span class="card-subtitle" id="popularClassCount">0 students</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section class="filters-section">
+            <div class="container">
+                <div class="filters-wrapper glass-card">
+                    <div class="filters-header">
+                        <h3><span class="filter-icon">🔍</span> Filter & Analyze</h3>
+                    </div>
+                    <div class="filters-grid">
+                        <div class="filter-group">
+                            <label for="dateRangeFilter">Date Range</label>
+                            <div class="date-range-inputs">
+                                <input type="date" id="startDate" class="filter-input" title="Start Date"
+                                    placeholder="Start Date">
+                                <span class="date-separator">to</span>
+                                <input type="date" id="endDate" class="filter-input" title="End Date"
+                                    placeholder="End Date">
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <label for="classTypeFilter">Class Type</label>
+                            <select id="classTypeFilter" class="filter-input">
+                                <option value="">All Classes</option>
+                                <option value="physics">Physics</option>
+                                <option value="chemistry">Chemistry</option>
+                                <option value="combined-maths">Combined Maths</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="feeRangeFilter">Fee Range</label>
+                            <select id="feeRangeFilter" class="filter-input">
+                                <option value="">All Fees</option>
+                                <option value="1000">Rs. 1,000 (Single)</option>
+                                <option value="2000">Rs. 2,000 (Double)</option>
+                                <option value="3000">Rs. 3,000 (All)</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn btn-secondary" id="resetFilters">
+                                <span>🔄</span> Reset
+                            </button>
+                            <button class="btn btn-primary" id="applyFilters">
+                                <span>✅</span> Apply Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Revenue by Class Section -->
+        <section class="class-revenue-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-icon">📊</span> Revenue by Class</h2>
+                </div>
+                <div class="class-revenue-grid">
+                    <!-- Physics Revenue -->
+                    <div class="class-revenue-card glass-card physics-revenue">
+                        <div class="class-header">
+                            <div class="class-icon-wrap physics-icon">
+                                <span class="class-icon">🔬</span>
+                            </div>
+                            <div class="class-info">
+                                <h3>Physics</h3>
+                                <span class="class-students"><span id="physicsStudents">0</span> students</span>
+                            </div>
+                        </div>
+                        <div class="class-amount">
+                            <span class="amount-label">Total Revenue</span>
+                            <span class="amount-value">Rs. <span id="physicsRevenue">0</span></span>
+                        </div>
+                        <div class="class-progress">
+                            <div class="progress-bar physics-bar" id="physicsBar" style="width: 0%"></div>
+                        </div>
+                        <div class="class-percent" id="physicsPercent">0% of total</div>
+                    </div>
+
+                    <!-- Chemistry Revenue -->
+                    <div class="class-revenue-card glass-card chemistry-revenue">
+                        <div class="class-header">
+                            <div class="class-icon-wrap chemistry-icon">
+                                <span class="class-icon">⚗️</span>
+                            </div>
+                            <div class="class-info">
+                                <h3>Chemistry</h3>
+                                <span class="class-students"><span id="chemistryStudents">0</span> students</span>
+                            </div>
+                        </div>
+                        <div class="class-amount">
+                            <span class="amount-label">Total Revenue</span>
+                            <span class="amount-value">Rs. <span id="chemistryRevenue">0</span></span>
+                        </div>
+                        <div class="class-progress">
+                            <div class="progress-bar chemistry-bar" id="chemistryBar" style="width: 0%"></div>
+                        </div>
+                        <div class="class-percent" id="chemistryPercent">0% of total</div>
+                    </div>
+
+                    <!-- Combined Maths Revenue -->
+                    <div class="class-revenue-card glass-card maths-revenue">
+                        <div class="class-header">
+                            <div class="class-icon-wrap maths-icon">
+                                <span class="class-icon">📐</span>
+                            </div>
+                            <div class="class-info">
+                                <h3>Combined Maths</h3>
+                                <span class="class-students"><span id="mathsStudents">0</span> students</span>
+                            </div>
+                        </div>
+                        <div class="class-amount">
+                            <span class="amount-label">Total Revenue</span>
+                            <span class="amount-value">Rs. <span id="mathsRevenue">0</span></span>
+                        </div>
+                        <div class="class-progress">
+                            <div class="progress-bar maths-bar" id="mathsBar" style="width: 0%"></div>
+                        </div>
+                        <div class="class-percent" id="mathsPercent">0% of total</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Type Analytics Section -->
+        <section class="payment-type-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-icon">💳</span> Payment Type Analysis</h2>
+                </div>
+                <div class="payment-type-grid">
+                    <!-- Bank Transfer Card -->
+                    <div class="payment-type-card glass-card bank-transfer">
+                        <div class="type-header">
+                            <div class="type-icon-wrap bank-icon">
+                                <span class="type-icon">🏦</span>
+                            </div>
+                            <div class="type-info">
+                                <h3>Bank Transfer</h3>
+                                <span class="type-subtitle">Online Registration</span>
+                            </div>
+                        </div>
+                        <div class="type-stats">
+                            <div class="type-stat">
+                                <span class="stat-value" id="bankTransferCount">0</span>
+                                <span class="stat-label">Students</span>
+                            </div>
+                            <div class="type-stat">
+                                <span class="stat-value" id="bankTransferRevenue">Rs. 0</span>
+                                <span class="stat-label">Revenue</span>
+                            </div>
+                        </div>
+                        <div class="type-progress">
+                            <div class="progress-bar bank-bar" id="bankTransferBar"></div>
+                        </div>
+                        <div class="type-percent" id="bankTransferPercent">0% of total</div>
+                    </div>
+
+                    <!-- Local Payment Card -->
+                    <div class="payment-type-card glass-card local-payment">
+                        <div class="type-header">
+                            <div class="type-icon-wrap local-icon">
+                                <span class="type-icon">💵</span>
+                            </div>
+                            <div class="type-info">
+                                <h3>Local Payment</h3>
+                                <span class="type-subtitle">Manual Registration</span>
+                            </div>
+                        </div>
+                        <div class="type-stats">
+                            <div class="type-stat">
+                                <span class="stat-value" id="localPaymentCount">0</span>
+                                <span class="stat-label">Students</span>
+                            </div>
+                            <div class="type-stat">
+                                <span class="stat-value" id="localPaymentRevenue">Rs. 0</span>
+                                <span class="stat-label">Revenue</span>
+                            </div>
+                        </div>
+                        <div class="type-progress">
+                            <div class="progress-bar local-bar" id="localPaymentBar"></div>
+                        </div>
+                        <div class="type-percent" id="localPaymentPercent">0% of total</div>
+                    </div>
+
+                    <!-- Pending Verification Card -->
+                    <div class="payment-type-card glass-card pending-verification">
+                        <div class="type-header">
+                            <div class="type-icon-wrap pending-icon">
+                                <span class="type-icon">⏳</span>
+                            </div>
+                            <div class="type-info">
+                                <h3>Pending Verification</h3>
+                                <span class="type-subtitle">Awaiting Approval</span>
+                            </div>
+                        </div>
+                        <div class="type-stats">
+                            <div class="type-stat">
+                                <span class="stat-value warning-text" id="pendingCount">0</span>
+                                <span class="stat-label">Students</span>
+                            </div>
+                            <div class="type-stat">
+                                <span class="stat-value warning-text" id="pendingRevenue">Rs. 0</span>
+                                <span class="stat-label">Pending Revenue</span>
+                            </div>
+                        </div>
+                        <a href="manage.html" class="btn btn-primary btn-small">
+                            <span>👁️</span> Review Pending
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Monthly Trends Section -->
+        <section class="trends-section">
+            <div class="container">
+                <div class="trends-grid">
+                    <!-- Monthly Revenue Chart -->
+                    <div class="trends-card glass-card">
+                        <div class="card-header">
+                            <h3><span class="section-icon">📈</span> Monthly Revenue Trend</h3>
+                        </div>
+                        <div class="chart-container">
+                            <div class="bar-chart" id="monthlyChart">
+                                <!-- Bars will be generated by JavaScript -->
+                            </div>
+                            <div class="chart-labels" id="chartLabels">
+                                <!-- Labels will be generated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fee Distribution -->
+                    <div class="trends-card glass-card">
+                        <div class="card-header">
+                            <h3><span class="section-icon">💳</span> Fee Distribution</h3>
+                        </div>
+                        <div class="fee-distribution">
+                            <div class="fee-item" id="fee1000">
+                                <div class="fee-header">
+                                    <span class="fee-label">Rs. 1,000 (Single Class)</span>
+                                    <span class="fee-count">0 students</span>
+                                </div>
+                                <div class="fee-bar-container">
+                                    <div class="fee-bar fee-bar-1000" style="width: 0%"></div>
+                                </div>
+                                <span class="fee-amount">Rs. 0</span>
+                            </div>
+                            <div class="fee-item" id="fee2000">
+                                <div class="fee-header">
+                                    <span class="fee-label">Rs. 2,000 (Two Classes)</span>
+                                    <span class="fee-count">0 students</span>
+                                </div>
+                                <div class="fee-bar-container">
+                                    <div class="fee-bar fee-bar-2000" style="width: 0%"></div>
+                                </div>
+                                <span class="fee-amount">Rs. 0</span>
+                            </div>
+                            <div class="fee-item" id="fee3000">
+                                <div class="fee-header">
+                                    <span class="fee-label">Rs. 3,000 (All Classes)</span>
+                                    <span class="fee-count">0 students</span>
+                                </div>
+                                <div class="fee-bar-container">
+                                    <div class="fee-bar fee-bar-3000" style="width: 0%"></div>
+                                </div>
+                                <span class="fee-amount">Rs. 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Transactions Section -->
+        <section class="transactions-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2><span class="section-icon">💳</span> Recent Registrations</h2>
+                </div>
+                <div class="transactions-wrapper glass-card">
+                    <table class="transactions-table" id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>Classes</th>
+                                <th>Registration Date</th>
+                                <th>Fee Paid</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                            <!-- Transaction rows will be inserted here -->
+                        </tbody>
+                    </table>
+                    <div class="empty-transactions hidden" id="emptyTransactions">
+                        <span class="empty-icon">📭</span>
+                        <p>No transactions found</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer dashboard-footer">
+        <div class="footer-content">
+            <div class="container">
+                <div class="footer-main">
+                    <div class="footer-brand">
+                        <span class="logo-icon">🔬</span>
+                        <span class="logo-text">EduPhysics<span class="logo-accent">Academy</span></span>
+                    </div>
+                    <div class="footer-contact-info">
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <span>+94 77 123 4567</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📧</span>
+                            <span>info@eduphysics.lk</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📍</span>
+                            <span>123 Education Lane, Colombo 07</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 EduPhysics Academy. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/finance.js"></script>
+</body>
+
+</html>
