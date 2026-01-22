@@ -134,3 +134,31 @@ set CLOUDINARY_API_SECRET=your_secret
 # Run server
 python app.py
 # Runs at http://127.0.0.1:5000
+
+
+## Deployment Process
+
+Our CI/CD works like this:
+
+1. When we push code to any branch, GitHub Actions runs the CI pipeline
+2. It checks out the code, installs dependencies, and runs linting
+3. When code is merged to main, it triggers deployment
+4. Frontend automatically deploys to Vercel
+5. Backend automatically deploys to Render
+
+The workflows are in `.github/workflows/` folder.
+
+## Challenges Faced
+
+1. **CORS issues** - Had trouble connecting frontend to backend at first. Fixed by properly configuring Flask-CORS with the right origins.
+
+2. **Render cold starts** - The free tier sleeps after 15 mins of no activity. First request takes 30-50 seconds to wake up. We added loading indicators to handle this.
+
+3. **Merge conflicts** - We had some conflicts when multiple people edited similar files. We solved this by communicating better and pulling changes frequently.
+
+4. **Environment variables** - Took some time to figure out how to set them up correctly on both Vercel and Render.
+
+## Default Login
+
+- Username: `admin`
+- Password: `admin123`
