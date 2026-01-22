@@ -17,3 +17,31 @@ Main things it does:
 - Admin can approve/reject registrations
 - Dashboard shows all students and their payment status
 - Finance page tracks revenue and pending payments
+
+## Technologies Used
+
+- HTML5, CSS3, JavaScript
+- Python Flask (backend)
+- MongoDB Atlas (database)
+- Cloudinary (for storing receipt images)
+- GitHub Actions
+- Vercel (frontend hosting)
+- Render (backend hosting)
+
+## Features
+
+- Student online registration with receipt upload
+- Admin login and dashboard
+- Student management (add, edit, delete)
+- Payment verification system
+- Finance analytics and reporting
+- Responsive design
+
+## Branch Strategy
+
+We used the following branching strategy:
+- `main` - Production branch (deployed)
+- `develop` - Integration branch for testing
+- `feature/*` - Feature development branches
+
+When working on new features, we created branches like `feature/student-registration` or `feature/finance-page`, then merged them into develop first before merging to main.
