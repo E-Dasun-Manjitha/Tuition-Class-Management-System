@@ -86,3 +86,51 @@ Commits:
 - Implemented login authentication
 - Connected to MongoDB Atlas
 - Added Cloudinary integration
+
+
+## Setup Instructions
+
+### Prerequisites
+- Node.js (version 18 or higher)
+- Python 3.8+
+- Git
+
+### Installation
+
+```bash
+# Clone the repository
+git clone [your-repo-url]
+
+# Navigate to project directory
+cd tuition-class-management-system
+```
+
+### Running Frontend
+
+```bash
+cd src/frontend
+npx serve .
+# Opens at http://localhost:3000
+```
+
+### Running Backend
+
+```bash
+cd src/backend
+
+# Create virtual environment
+python -m venv venv
+venv\Scripts\activate  # On Windows
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set environment variables
+set MONGODB_URI=your_connection_string
+set CLOUDINARY_CLOUD_NAME=your_cloud_name
+set CLOUDINARY_API_KEY=your_key
+set CLOUDINARY_API_SECRET=your_secret
+
+# Run server
+python app.py
+# Runs at http://127.0.0.1:5000
