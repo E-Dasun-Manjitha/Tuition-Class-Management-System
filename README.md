@@ -156,6 +156,13 @@ The workflows are in `.github/workflows/` folder.
 
 3. **Merge conflicts** - We had some conflicts when multiple people edited similar files. We solved this by communicating better and pulling changes frequently.
 
+
+## Live Deployment
+
+**Live URL:** [Your Vercel URL here]
+
+**Backend API:** [Your Render URL here]
+
 4. **Environment variables** - Took some time to figure out how to set them up correctly on both Vercel and Render.
 
 ## Default Login
