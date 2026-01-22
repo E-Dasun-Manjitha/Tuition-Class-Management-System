@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="EduPhysics Academy - Premier Tuition Class Management System for Physics, Chemistry and Combined Mathematics">
+    <title>EduPhysics Academy - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles/tuition.css">
+</head>
+
+<body class="login-page">
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+        </div>
+        <div class="particle-container" id="particles"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-transparent">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html" class="nav-logo">
+                    <span class="logo-icon">🔬</span>
+                    <span class="logo-text">EduPhysics<span class="logo-accent">Academy</span></span>
+                </a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#subjects" class="nav-link">Subjects</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="hero-badge">
+                        <span class="badge-icon">⚡</span>
+                        <span>Premier Physical Science Tuition</span>
+                    </div>
+                    <h1 class="hero-title">
+                        <span class="title-line">Excel in</span>
+                        <span class="gradient-text">Physical Science</span>
+                        <span class="title-line">with Expert Guidance</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Transform your understanding of Physics, Chemistry, and Combined Mathematics
+                        with our experienced instructors and personalized learning approach.
+                    </p>
+                    <div class="hero-features">
+                        <div class="feature-pill">
+                            <span class="pill-icon">🔬</span>
+                            <span>Physics</span>
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon">⚗️</span>
+                            <span>Chemistry</span>
+                        </div>
+                        <div class="feature-pill">
+                            <span class="pill-icon">📐</span>
+                            <span>Combined Maths</span>
+                        </div>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary btn-glow btn-large" id="loginTrigger">
+                            <span class="btn-icon">🔐</span>
+                            Admin Login
+                        </button>
+                        <a href="student-register.html" class="btn btn-success btn-large">
+                            <span class="btn-icon">📝</span>
+                            Student Registration
+                        </a>
+                        <a href="#about" class="btn btn-secondary btn-large">
+                            Learn More
+                        </a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" data-count="500">0</span>
+                            <span class="stat-label">+Students</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-count="15">0</span>
+                            <span class="stat-label">Years Exp.</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-count="95">0</span>
+                            <span class="stat-label">%Pass Rate</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="science-animation">
+                        <div class="atom-container">
+                            <div class="atom-nucleus"></div>
+                            <div class="electron-orbit orbit-1">
+                                <div class="electron"></div>
+                            </div>
+                            <div class="electron-orbit orbit-2">
+                                <div class="electron"></div>
+                            </div>
+                            <div class="electron-orbit orbit-3">
+                                <div class="electron"></div>
+                            </div>
+                        </div>
+                        <div class="floating-formulas">
+                            <div class="formula f1">E = mc²</div>
+                            <div class="formula f2">F = ma</div>
+                            <div class="formula f3">PV = nRT</div>
+                            <div class="formula f4">∫ dx</div>
+                            <div class="formula f5">Σ Fnet = 0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Why Choose Us</span>
+                <h2 class="section-title">Empowering Future Scientists</h2>
+                <p class="section-desc">We provide comprehensive education in physical sciences with a focus on
+                    conceptual understanding and practical application.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card glass-card">
+                    <div class="feature-icon-wrap">
+                        <span class="feature-icon">👨‍🏫</span>
+                    </div>
+                    <h3>Expert Instructors</h3>
+                    <p>Learn from qualified educators with years of teaching experience and industry knowledge.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon-wrap">
+                        <span class="feature-icon">📚</span>
+                    </div>
+                    <h3>Comprehensive Curriculum</h3>
+                    <p>Structured learning paths covering all syllabus requirements with additional enrichment.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon-wrap">
+                        <span class="feature-icon">🎯</span>
+                    </div>
+                    <h3>Personalized Attention</h3>
+                    <p>Small class sizes ensure individual attention and tailored guidance for each student.</p>
+                </div>
+                <div class="feature-card glass-card">
+                    <div class="feature-icon-wrap">
+                        <span class="feature-icon">📈</span>
+                    </div>
+                    <h3>Proven Results</h3>
+                    <p>Track record of excellent results with high pass rates in national examinations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subjects Section -->
+    <section id="subjects" class="subjects-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Our Subjects</span>
+                <h2 class="section-title">Comprehensive Subject Coverage</h2>
+            </div>
+            <div class="subjects-grid">
+                <div class="subject-card physics-card">
+                    <div class="subject-icon">🔬</div>
+                    <h3>Physics</h3>
+                    <p>Mechanics, Electromagnetism, Waves, Thermodynamics, Modern Physics</p>
+                    <div class="subject-price">Rs. 1,000/month</div>
+                </div>
+                <div class="subject-card chemistry-card">
+                    <div class="subject-icon">⚗️</div>
+                    <h3>Chemistry</h3>
+                    <p>Organic, Inorganic, Physical Chemistry, Lab Practicals</p>
+                    <div class="subject-price">Rs. 1,000/month</div>
+                </div>
+                <div class="subject-card maths-card">
+                    <div class="subject-icon">📐</div>
+                    <h3>Combined Maths</h3>
+                    <p>Pure Mathematics, Applied Mathematics, Statistics</p>
+                    <div class="subject-price">Rs. 1,000/month</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-container">
+            <div class="modal-content glass-card">
+                <button class="modal-close" id="modalClose" aria-label="Close modal">
+                    <span>&times;</span>
+                </button>
+                <div class="login-header">
+                    <div class="login-icon">
+                        <span>🔐</span>
+                    </div>
+                    <h2>Admin Login</h2>
+                    <p>Access the student management system</p>
+                </div>
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">👤</span>
+                            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="password" name="password" placeholder="Enter your password"
+                                required>
+                            <button type="button" class="password-toggle" id="passwordToggle"
+                                aria-label="Toggle password visibility">
+                                <span class="eye-icon">👁️</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-error" id="loginError"></div>
+                    <button type="submit" class="btn btn-primary btn-block btn-glow">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-loader hidden">
+                            <span class="loader"></span>
+                        </span>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="footer-top">
+            <div class="container">
+                <div class="footer-grid">
+                    <div class="footer-brand">
+                        <div class="footer-logo">
+                            <span class="logo-icon">🔬</span>
+                            <span class="logo-text">EduPhysics<span class="logo-accent">Academy</span></span>
+                        </div>
+                        <p class="footer-desc">Premier Physical Science tuition center providing quality education in
+                            Physics, Chemistry, and Combined Mathematics.</p>
+                        <div class="social-links">
+                            <a href="#" class="social-link" aria-label="Facebook">📘</a>
+                            <a href="#" class="social-link" aria-label="WhatsApp">💬</a>
+                            <a href="#" class="social-link" aria-label="YouTube">📺</a>
+                            <a href="#" class="social-link" aria-label="Instagram">📸</a>
+                        </div>
+                    </div>
+                    <div class="footer-links-section">
+                        <h4>Quick Links</h4>
+                        <ul class="footer-links">
+                            <li><a href="#home">Home</a></li>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#subjects">Subjects</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links-section">
+                        <h4>Subjects</h4>
+                        <ul class="footer-links">
+                            <li><a href="#subjects">Physics</a></li>
+                            <li><a href="#subjects">Chemistry</a></li>
+                            <li><a href="#subjects">Combined Maths</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-contact">
+                        <h4>Contact Us</h4>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <span class="contact-icon">📍</span>
+                                <span>123 Education Lane, Colombo 07, Sri Lanka</span>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📞</span>
+                                <span>+94 77 123 4567</span>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📧</span>
+                                <span>info@eduphysics.lk</span>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">⏰</span>
+                                <span>Mon - Sat: 8:00 AM - 8:00 PM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 EduPhysics Academy. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/login.js"></script>
+</body>
+
+</html>
