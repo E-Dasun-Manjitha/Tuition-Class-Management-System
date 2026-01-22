@@ -45,3 +45,44 @@ We used the following branching strategy:
 - `feature/*` - Feature development branches
 
 When working on new features, we created branches like `feature/student-registration` or `feature/finance-page`, then merged them into develop first before merging to main.
+
+## Individual Contributions
+
+### [E.Dasun Manjitha] - DevOps Engineer
+- Set up the GitHub repository
+- Created CI/CD pipelines using GitHub Actions
+- Configured deployment on Vercel and Render
+- Managed environment variables and secrets
+- Wrote deployment documentation
+
+Commits:
+- Initial repository setup
+- Added GitHub Actions workflow for CI
+- Configured Vercel deployment
+- Added environment configuration
+
+### [A.G.S Lakshan] - Full Stack Developer
+- Built all the HTML pages (index, manage, register, finance)
+- Created CSS styling and responsive layouts
+- Implemented JavaScript functionality
+- Connected frontend to backend API
+
+- Developed Flask API endpoints
+- Set up MongoDB database connection
+- Implemented authentication
+- Created student CRUD operations
+- Integrated Cloudinary for image uploads
+
+
+Commits:
+- Created homepage with login form
+- Built student registration page
+- Added admin management dashboard
+- Implemented finance analytics page
+- Made design responsive for mobile
+
+- Set up Flask app structure
+- Added student API endpoints
+- Implemented login authentication
+- Connected to MongoDB Atlas
+- Added Cloudinary integration
