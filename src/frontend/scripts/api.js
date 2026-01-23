@@ -95,6 +95,12 @@ const api = {
         method: 'DELETE'
     }),
 
+    // Verify/Reject student registration
+    verifyStudent: (id, status) => apiCall(`${API_CONFIG.ENDPOINTS.STUDENTS}/${id}/verify`, {
+        method: 'PUT',
+        body: JSON.stringify({ status })
+    }),
+
     // Public Student Registration (with payment receipt)
     createStudentRegistration: (studentData) => apiCall('/students/register', {
         method: 'POST',

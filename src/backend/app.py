@@ -258,21 +258,31 @@ def verify_student(student_id):
         if status not in ['verified', 'rejected']:
             return jsonify({'success': False, 'error': 'Invalid status'}), 400
 
-        result = students_collection.update_one(
-            {'_id': ObjectId(student_id)},
-            {'$set': {
-                'status': status,
-                'updatedAt': datetime.utcnow()
-            }}
-        )
-
-        if result.modified_count == 0:
+        # Check if student exists
+        student = students_collection.find_one({'_id': ObjectId(student_id)})
+        if not student:
             return jsonify({'success': False, 'error': 'Student not found'}), 404
 
-        return jsonify({
-            'success': True,
-            'message': f'Student {status} successfully'
-        }), 200
+        if status == 'rejected':
+            # If rejected, delete the student record completely
+            students_collection.delete_one({'_id': ObjectId(student_id)})
+            return jsonify({
+                'success': True,
+                'message': 'Student registration rejected and removed from system'
+            }), 200
+        else:
+            # If verified, update the status
+            students_collection.update_one(
+                {'_id': ObjectId(student_id)},
+                {'$set': {
+                    'status': 'verified',
+                    'updatedAt': datetime.utcnow()
+                }}
+            )
+            return jsonify({
+                'success': True,
+                'message': 'Student verified successfully'
+            }), 200
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -352,8 +362,14 @@ def delete_student(student_id):
 def get_analytics():
     """Get student analytics overview"""
     try:
-        students = list(students_collection.find())
+        # Only count verified students or admin-added students (no status field = admin added)
+        # Exclude pending students from counts
+        all_students = list(students_collection.find())
+        students = [s for s in all_students if s.get('status') != 'pending']
         total = len(students)
+        
+        # Count pending registrations separately
+        pending_count = sum(1 for s in all_students if s.get('status') == 'pending')
 
         # Gender distribution
         males = sum(1 for s in students if s.get('gender') == 'male')
@@ -364,7 +380,7 @@ def get_analytics():
         chemistry = sum(1 for s in students if 'chemistry' in s.get('classes', []))
         maths = sum(1 for s in students if 'combined-maths' in s.get('classes', []))
 
-        # Recent registrations
+        # Recent registrations (only verified/admin-added)
         now = datetime.utcnow()
         week_ago = datetime(now.year, now.month, now.day - 7) if now.day > 7 else now
         month_start = datetime(now.year, now.month, 1)
@@ -376,6 +392,7 @@ def get_analytics():
             'success': True,
             'data': {
                 'totalStudents': total,
+                'pendingRegistrations': pending_count,
                 'genderDistribution': {
                     'male': males,
                     'female': females
@@ -397,11 +414,14 @@ def get_analytics():
 
 @app.route('/api/analytics/finance', methods=['GET'])
 def get_finance_analytics():
-    """Get financial analytics"""
+    """Get financial analytics - only counts verified/admin-added students"""
     try:
-        students = list(students_collection.find())
+        # Only count verified students or admin-added students (no status field)
+        # Exclude pending students from financial calculations
+        all_students = list(students_collection.find())
+        students = [s for s in all_students if s.get('status') != 'pending']
         
-        # Total revenue
+        # Total revenue (only from verified/admin-added students)
         total_revenue = sum(s.get('registrationFee', 0) for s in students)
         
         # This month revenue

@@ -1,34 +1,70 @@
 /**
  * EduPhysics Academy - Finance Analysis
  * Handles financial data analysis, charts, and reporting
+ * NOW USES MONGODB BACKEND API FOR REAL-TIME DATA SYNC
  */
 
-const STUDENTS_KEY = 'eduphysics_students';
+// Global data store
+let allStudents = [];
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadFinanceData();
     initializeFilters();
     initializeExport();
+
+    // Auto-refresh data every 30 seconds for real-time updates
+    setInterval(loadFinanceData, 30000);
 });
 
-// Load and display financial data
-function loadFinanceData() {
-    const students = getStudents();
-    updateOverviewCards(students);
-    updateClassRevenue(students);
-    updatePaymentTypeAnalytics(students);
-    updateMonthlyChart(students);
-    updateFeeDistribution(students);
-    updateTransactionsTable(students);
+// ==================== API FUNCTIONS ====================
+
+// Load financial data from MongoDB via API
+async function loadFinanceData() {
+    try {
+        const response = await api.getStudents();
+
+        if (response.success) {
+            allStudents = response.data || [];
+
+            // Filter to get only verified or admin-added students for financial calculations
+            const verifiedStudents = getVerifiedStudents(allStudents);
+
+            updateOverviewCards(verifiedStudents);
+            updateClassRevenue(verifiedStudents);
+            updatePaymentTypeAnalytics(allStudents); // Pass all students for payment type breakdown
+            updateMonthlyChart(verifiedStudents);
+            updateFeeDistribution(verifiedStudents);
+            updateTransactionsTable(verifiedStudents);
+        } else {
+            console.error('Failed to load finance data:', response.error);
+        }
+    } catch (error) {
+        console.error('API Error:', error);
+        showConnectionError();
+    }
 }
 
+// Get only verified students (admin-added or verified online registrations)
+// Exclude pending students from financial calculations
+function getVerifiedStudents(students) {
+    return students.filter(s => {
+        // Include if no status (admin-added) or if status is 'verified'
+        return !s.status || s.status === 'verified';
+    });
+}
+
+// Legacy function for backward compatibility
 function getStudents() {
-    const data = localStorage.getItem(STUDENTS_KEY);
-    return data ? JSON.parse(data) : [];
+    return getVerifiedStudents(allStudents);
 }
 
-// Update overview cards
+function showConnectionError() {
+    console.warn('Cannot connect to server. Finance data may be outdated.');
+}
+
+// ==================== OVERVIEW CARDS ====================
+
 function updateOverviewCards(students) {
     // Total revenue
     const totalRevenue = students.reduce((sum, s) => sum + (s.registrationFee || 0), 0);
@@ -60,7 +96,8 @@ function updateOverviewCards(students) {
     document.getElementById('popularClassCount').textContent = `${maxClass[1]} students`;
 }
 
-// Update class revenue
+// ==================== CLASS REVENUE ====================
+
 function updateClassRevenue(students) {
     const classData = {
         physics: { students: 0, revenue: 0 },
@@ -110,9 +147,10 @@ function updateClassRevenue(students) {
     document.getElementById('mathsPercent').textContent = `${Math.round(mathsPercent)}% of total`;
 }
 
-// Update payment type analytics (Bank Transfer vs Local Payment)
+// ==================== PAYMENT TYPE ANALYTICS ====================
+
 function updatePaymentTypeAnalytics(students) {
-    // Bank Transfer (Online registration)
+    // Bank Transfer (Online registration - verified only)
     const onlineStudents = students.filter(s => s.registrationType === 'online' && s.status === 'verified');
     const onlineCount = onlineStudents.length;
     const onlineRevenue = onlineStudents.reduce((sum, s) => sum + (s.registrationFee || 0), 0);
@@ -129,7 +167,6 @@ function updatePaymentTypeAnalytics(students) {
 
     // Total for percentage calculation (only verified)
     const totalVerified = onlineCount + localCount;
-    const totalVerifiedRevenue = onlineRevenue + localRevenue;
 
     // Update Bank Transfer card
     document.getElementById('bankTransferCount').textContent = onlineCount;
@@ -150,7 +187,8 @@ function updatePaymentTypeAnalytics(students) {
     document.getElementById('pendingRevenue').textContent = `Rs. ${pendingRevenue.toLocaleString()}`;
 }
 
-// Update monthly chart
+// ==================== MONTHLY CHART ====================
+
 function updateMonthlyChart(students) {
     const monthlyData = {};
     const now = new Date();
@@ -187,7 +225,8 @@ function updateMonthlyChart(students) {
     }).join('');
 }
 
-// Update fee distribution
+// ==================== FEE DISTRIBUTION ====================
+
 function updateFeeDistribution(students) {
     const feeData = {
         1000: { count: 0, total: 0 },
@@ -216,7 +255,8 @@ function updateFeeDistribution(students) {
     });
 }
 
-// Update transactions table
+// ==================== TRANSACTIONS TABLE ====================
+
 function updateTransactionsTable(students) {
     const tbody = document.getElementById('transactionsBody');
     const emptyState = document.getElementById('emptyTransactions');
@@ -252,7 +292,8 @@ function renderClassBadges(classes) {
     }).join(' ');
 }
 
-// Filters
+// ==================== FILTERS ====================
+
 function initializeFilters() {
     const applyBtn = document.getElementById('applyFilters');
     const resetBtn = document.getElementById('resetFilters');
@@ -267,7 +308,7 @@ function initializeFilters() {
 }
 
 function applyFilters() {
-    let students = getStudents();
+    let students = getVerifiedStudents(allStudents);
 
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
@@ -309,7 +350,8 @@ function resetFilters() {
     loadFinanceData();
 }
 
-// Export functionality
+// ==================== EXPORT ====================
+
 function initializeExport() {
     const exportBtn = document.getElementById('exportBtn');
     if (exportBtn) {
@@ -318,12 +360,12 @@ function initializeExport() {
 }
 
 function exportReport() {
-    const students = getStudents();
+    const students = getVerifiedStudents(allStudents);
 
     // Create CSV content
     const headers = ['Student ID', 'Name', 'Email', 'Mobile', 'Gender', 'Classes', 'Registration Date', 'Fee'];
     const rows = students.map(s => [
-        s.id,
+        s._id || s.id,
         `${s.firstName} ${s.lastName}`,
         s.email,
         s.mobile,
@@ -345,7 +387,8 @@ function exportReport() {
     link.click();
 }
 
-// Utility functions
+// ==================== UTILITY FUNCTIONS ====================
+
 function capitalizeFirst(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 }
