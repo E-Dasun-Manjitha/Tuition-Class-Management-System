@@ -159,9 +159,9 @@ The workflows are in `.github/workflows/` folder.
 
 ## Live Deployment
 
-**Live URL:** [Your Vercel URL here]
+**Frontend live URL:** eduphysics-academy.vercel.app
 
-**Backend API:** [Your Render URL here]
+**Backend API:** https://eduphysics-api.onrender.com
 
 4. **Environment variables** - Took some time to figure out how to set them up correctly on both Vercel and Render.
 
