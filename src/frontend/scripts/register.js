@@ -91,7 +91,7 @@ function initializeAlerts() {
     });
 }
 
-// Handle form submission
+// Handle form submission - NOW USES MONGODB API ONLY
 async function handleRegistration(e) {
     e.preventDefault();
 
@@ -112,27 +112,29 @@ async function handleRegistration(e) {
     submitBtn.disabled = true;
 
     try {
-        // Try API first
+        // Use API to save to MongoDB
         const response = await api.createStudent(formData);
 
         if (response.success) {
-            showSuccess('Student registered successfully!');
-            registrationForm.reset();
-            resetFeeSummary();
-            setDefaultDate();
-        }
-    } catch (error) {
-        // Fallback to localStorage if API fails
-        console.warn('API unavailable, using localStorage:', error.message);
-
-        if (saveStudentLocally(formData)) {
-            showSuccess('Student registered successfully! (Offline mode)');
+            showSuccess('Student registered successfully! Data saved to database.');
             registrationForm.reset();
             resetFeeSummary();
             setDefaultDate();
         } else {
-            showError(error.message || 'Failed to register student');
+            throw new Error(response.error || 'Registration failed');
         }
+    } catch (error) {
+        console.error('Registration error:', error);
+
+        // Show user-friendly error message
+        let errorMessage = error.message || 'Failed to register student';
+        if (errorMessage.includes('Email already registered')) {
+            errorMessage = 'This email is already registered. Please use a different email.';
+        } else if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
+            errorMessage = 'Cannot connect to server. Please check your internet connection and try again.';
+        }
+
+        showError(errorMessage);
     } finally {
         btnText.classList.remove('hidden');
         btnLoader.classList.add('hidden');

@@ -1,11 +1,12 @@
 /**
  * EduPhysics Academy - Student Management
  * Handles displaying, searching, filtering, editing, and deleting students
+ * NOW USES MONGODB BACKEND API FOR REAL-TIME DATA SYNC
  */
 
-const STUDENTS_KEY = 'eduphysics_students';
 let currentPage = 1;
 const itemsPerPage = 10;
+let allStudents = [];
 let filteredStudents = [];
 let deleteStudentId = null;
 
@@ -31,30 +32,107 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeSearch();
     initializeFilters();
     initializeModals();
-    updateAnalytics();
+
+    // Auto-refresh data every 30 seconds for real-time updates
+    setInterval(loadStudents, 30000);
 });
 
-// Load and display students
-function loadStudents() {
+// ==================== API FUNCTIONS ====================
+
+// Load students from MongoDB via API
+async function loadStudents() {
     showLoading(true);
 
-    setTimeout(() => {
-        const students = getStudents();
-        filteredStudents = [...students];
-        renderStudents();
-        updateAnalytics();
+    try {
+        const response = await api.getStudents();
+
+        if (response.success) {
+            allStudents = response.data || [];
+            filteredStudents = [...allStudents];
+            renderStudents();
+            updateAnalytics();
+        } else {
+            console.error('Failed to load students:', response.error);
+            showError('Failed to load students. Please refresh the page.');
+        }
+    } catch (error) {
+        console.error('API Error:', error);
+        showError('Cannot connect to server. Please check your connection.');
+    } finally {
         showLoading(false);
-    }, 300);
+    }
 }
 
+// Get all students (returns cached data)
 function getStudents() {
-    const data = localStorage.getItem(STUDENTS_KEY);
-    return data ? JSON.parse(data) : [];
+    return allStudents;
 }
 
-function saveStudents(students) {
-    localStorage.setItem(STUDENTS_KEY, JSON.stringify(students));
+// Create student via API
+async function createStudentAPI(studentData) {
+    try {
+        const response = await api.createStudent(studentData);
+        if (response.success) {
+            await loadStudents(); // Refresh data
+            return response.data;
+        } else {
+            throw new Error(response.error);
+        }
+    } catch (error) {
+        console.error('Create student error:', error);
+        throw error;
+    }
 }
+
+// Update student via API
+async function updateStudentAPI(id, studentData) {
+    try {
+        const response = await api.updateStudent(id, studentData);
+        if (response.success) {
+            await loadStudents(); // Refresh data
+            return response.data;
+        } else {
+            throw new Error(response.error);
+        }
+    } catch (error) {
+        console.error('Update student error:', error);
+        throw error;
+    }
+}
+
+// Delete student via API
+async function deleteStudentAPI(id) {
+    try {
+        const response = await api.deleteStudent(id);
+        if (response.success) {
+            await loadStudents(); // Refresh data
+            return true;
+        } else {
+            throw new Error(response.error);
+        }
+    } catch (error) {
+        console.error('Delete student error:', error);
+        throw error;
+    }
+}
+
+// Verify student via API
+async function verifyStudentAPI(id, status) {
+    try {
+        const response = await api.verifyStudent(id, status);
+        if (response.success) {
+            await loadStudents(); // Refresh data
+            return true;
+        } else {
+            throw new Error(response.error);
+        }
+    } catch (error) {
+        console.error('Verify student error:', error);
+        throw error;
+    }
+}
+
+// ==================== RENDER FUNCTIONS ====================
 
 // Render students table
 function renderStudents() {
@@ -76,9 +154,10 @@ function renderStudents() {
         const isPending = student.registrationType === 'online' && student.status === 'pending';
         const pendingIndicator = isPending ? '<span class="pending-dot" title="Pending Verification"></span>' : '';
         const rowClass = isPending ? 'pending-row' : '';
+        const studentId = student._id || student.id;
 
         return `
-        <tr data-id="${student.id}" class="${rowClass}">
+        <tr data-id="${studentId}" class="${rowClass}">
             <td>${startIndex + index + 1}${pendingIndicator}</td>
             <td>
                 <div class="student-name">${student.firstName} ${student.lastName}</div>
@@ -95,9 +174,9 @@ function renderStudents() {
             <td>Rs. ${student.registrationFee.toLocaleString()}</td>
             <td>
                 <div class="action-btns">
-                    <button class="action-btn view ${isPending ? 'pending-action' : ''}" onclick="viewStudent('${student.id}')" title="${isPending ? 'Review & Verify' : 'View Details'}">${isPending ? '⏳' : '👁️'}</button>
-                    <button class="action-btn edit" onclick="editStudent('${student.id}')" title="Edit">✏️</button>
-                    <button class="action-btn delete" onclick="confirmDelete('${student.id}')" title="Delete">🗑️</button>
+                    <button class="action-btn view ${isPending ? 'pending-action' : ''}" onclick="viewStudent('${studentId}')" title="${isPending ? 'Review & Verify' : 'View Details'}">${isPending ? '⏳' : '👁️'}</button>
+                    <button class="action-btn edit" onclick="editStudent('${studentId}')" title="Edit">✏️</button>
+                    <button class="action-btn delete" onclick="confirmDelete('${studentId}')" title="Delete">🗑️</button>
                 </div>
             </td>
         </tr>
@@ -143,7 +222,8 @@ function goToPage(page) {
     renderStudents();
 }
 
-// Search functionality
+// ==================== SEARCH & FILTER ====================
+
 function initializeSearch() {
     if (searchInput) {
         searchInput.addEventListener('input', debounce(handleSearch, 300));
@@ -166,7 +246,6 @@ function handleSearch() {
     applyFilters();
 }
 
-// Filter functionality
 function initializeFilters() {
     if (genderFilter) genderFilter.addEventListener('change', applyFilters);
     if (classFilter) classFilter.addEventListener('change', applyFilters);
@@ -174,13 +253,12 @@ function initializeFilters() {
 }
 
 function applyFilters() {
-    const students = getStudents();
     const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
     const genderValue = genderFilter ? genderFilter.value : '';
     const classValue = classFilter ? classFilter.value : '';
     const monthValue = monthFilter ? monthFilter.value : '';
 
-    filteredStudents = students.filter(student => {
+    filteredStudents = allStudents.filter(student => {
         // Search filter
         const matchesSearch = !searchTerm ||
             student.firstName.toLowerCase().includes(searchTerm) ||
@@ -205,9 +283,10 @@ function applyFilters() {
     updateAnalytics();
 }
 
-// Analytics
+// ==================== ANALYTICS ====================
+
 function updateAnalytics() {
-    const students = getStudents();
+    const students = allStudents;
 
     // Total students
     document.getElementById('totalStudents').textContent = students.length;
@@ -246,7 +325,6 @@ function updateAnalytics() {
     updatePendingVerificationBadge(students);
 }
 
-// Update pending verification badge
 function updatePendingVerificationBadge(students) {
     const pendingCount = students.filter(s =>
         s.registrationType === 'online' && s.status === 'pending'
@@ -263,7 +341,8 @@ function updatePendingVerificationBadge(students) {
     }
 }
 
-// Modal functions
+// ==================== MODALS ====================
+
 function initializeModals() {
     // View modal
     document.getElementById('viewModalClose').addEventListener('click', () => closeModal(viewModal));
@@ -297,12 +376,12 @@ function closeModal(modal) {
     document.body.style.overflow = '';
 }
 
-// View student
+// ==================== VIEW STUDENT ====================
+
 let currentViewStudentId = null;
 
 function viewStudent(id) {
-    const students = getStudents();
-    const student = students.find(s => s.id === id);
+    const student = allStudents.find(s => (s._id || s.id) === id);
     if (!student) return;
 
     currentViewStudentId = id;
@@ -313,7 +392,7 @@ function viewStudent(id) {
     const statusClass = status;
 
     const detailsHtml = `
-        <div class="detail-row"><span class="detail-label">Student ID</span><span class="detail-value">${student.id}</span></div>
+        <div class="detail-row"><span class="detail-label">Student ID</span><span class="detail-value">${student._id || student.id}</span></div>
         <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${student.firstName} ${student.lastName}</span></div>
         <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${student.email}</span></div>
         <div class="detail-row"><span class="detail-label">Mobile</span><span class="detail-value">${student.mobile}</span></div>
@@ -343,7 +422,6 @@ function viewStudent(id) {
     if (isOnline && student.paymentReceipt) {
         receiptSection.classList.remove('hidden');
 
-        // Check if PDF or image
         if (student.paymentReceipt.startsWith('data:application/pdf')) {
             receiptPreview.innerHTML = `
                 <a href="${student.paymentReceipt}" target="_blank" class="pdf-link btn btn-secondary">
@@ -367,8 +445,6 @@ function viewStudent(id) {
 
     if (isOnline && status === 'pending') {
         verificationActions.classList.remove('hidden');
-
-        // Set up verify button
         document.getElementById('verifyBtn').onclick = () => verifyStudent(id, 'verified');
         document.getElementById('rejectBtn').onclick = () => verifyStudent(id, 'rejected');
     } else {
@@ -378,43 +454,32 @@ function viewStudent(id) {
     openModal(viewModal);
 }
 
-// Verify or reject student
-function verifyStudent(id, status) {
-    const students = getStudents();
-    const index = students.findIndex(s => s.id === id);
-    if (index === -1) return;
+// Verify or reject student - NOW USES API
+async function verifyStudent(id, status) {
+    const student = allStudents.find(s => (s._id || s.id) === id);
+    if (!student) return;
 
-    if (status === 'rejected') {
-        // REJECT: Remove student completely from the system
-        // This removes both student data and their financial record
-        const rejectedStudent = students[index];
-        const updatedStudents = students.filter(s => s.id !== id);
-        saveStudents(updatedStudents);
-
+    try {
+        await verifyStudentAPI(id, status);
         closeModal(viewModal);
-        loadStudents();
 
-        alert(`Registration for ${rejectedStudent.firstName} ${rejectedStudent.lastName} has been rejected and removed from the system.`);
-    } else {
-        // VERIFY: Update status to verified
-        students[index].status = 'verified';
-        students[index].updatedAt = new Date().toISOString();
-        saveStudents(students);
-
-        closeModal(viewModal);
-        loadStudents();
-
-        alert(`Student registration approved successfully! Student and financial data are now active.`);
+        if (status === 'rejected') {
+            alert(`Registration for ${student.firstName} ${student.lastName} has been rejected and removed from the system.`);
+        } else {
+            alert(`Student registration approved successfully! Student and financial data are now active.`);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
     }
 }
 
-// Edit student
+// ==================== EDIT STUDENT ====================
+
 function editStudent(id) {
-    const students = getStudents();
-    const student = students.find(s => s.id === id);
+    const student = allStudents.find(s => (s._id || s.id) === id);
     if (!student) return;
 
-    document.getElementById('editStudentId').value = student.id;
+    document.getElementById('editStudentId').value = student._id || student.id;
     document.getElementById('editFirstName').value = student.firstName;
     document.getElementById('editLastName').value = student.lastName;
     document.getElementById('editEmail').value = student.email;
@@ -435,40 +500,38 @@ function editStudent(id) {
     openModal(editModal);
 }
 
-function handleEditSubmit(e) {
+async function handleEditSubmit(e) {
     e.preventDefault();
 
     const id = document.getElementById('editStudentId').value;
-    const students = getStudents();
-    const index = students.findIndex(s => s.id === id);
-    if (index === -1) return;
-
     const genderRadio = document.querySelector('input[name="editGender"]:checked');
     const classCheckboxes = document.querySelectorAll('input[name="editClasses"]:checked');
 
-    students[index] = {
-        ...students[index],
+    const studentData = {
         firstName: document.getElementById('editFirstName').value.trim(),
         lastName: document.getElementById('editLastName').value.trim(),
         email: document.getElementById('editEmail').value.trim().toLowerCase(),
         mobile: document.getElementById('editMobile').value.trim(),
-        gender: genderRadio ? genderRadio.value : students[index].gender,
+        gender: genderRadio ? genderRadio.value : 'male',
         address: document.getElementById('editAddress').value.trim(),
         classes: Array.from(classCheckboxes).map(cb => cb.value),
         registerDate: document.getElementById('editRegisterDate').value,
-        registrationFee: parseInt(document.getElementById('editFee').value),
-        updatedAt: new Date().toISOString()
+        registrationFee: parseInt(document.getElementById('editFee').value)
     };
 
-    saveStudents(students);
-    closeModal(editModal);
-    loadStudents();
+    try {
+        await updateStudentAPI(id, studentData);
+        closeModal(editModal);
+        alert('Student updated successfully!');
+    } catch (error) {
+        alert('Error updating student: ' + error.message);
+    }
 }
 
-// Delete student
+// ==================== DELETE STUDENT ====================
+
 function confirmDelete(id) {
-    const students = getStudents();
-    const student = students.find(s => s.id === id);
+    const student = allStudents.find(s => (s._id || s.id) === id);
     if (!student) return;
 
     deleteStudentId = id;
@@ -476,19 +539,21 @@ function confirmDelete(id) {
     openModal(deleteModal);
 }
 
-function handleDelete() {
+async function handleDelete() {
     if (!deleteStudentId) return;
 
-    const students = getStudents();
-    const updatedStudents = students.filter(s => s.id !== deleteStudentId);
-    saveStudents(updatedStudents);
-
-    deleteStudentId = null;
-    closeModal(deleteModal);
-    loadStudents();
+    try {
+        await deleteStudentAPI(deleteStudentId);
+        deleteStudentId = null;
+        closeModal(deleteModal);
+        alert('Student deleted successfully!');
+    } catch (error) {
+        alert('Error deleting student: ' + error.message);
+    }
 }
 
-// Utility functions
+// ==================== UTILITY FUNCTIONS ====================
+
 function showLoading(show) {
     if (show) {
         loadingState.classList.remove('hidden');
@@ -496,6 +561,11 @@ function showLoading(show) {
     } else {
         loadingState.classList.add('hidden');
     }
+}
+
+function showError(message) {
+    console.error(message);
+    // You can add a toast notification here
 }
 
 function capitalizeFirst(str) {
@@ -526,7 +596,8 @@ function debounce(func, wait) {
     };
 }
 
-// ========== Delete All Feature ==========
+// ==================== DELETE ALL FEATURE ====================
+
 const deleteAllModal = document.getElementById('deleteAllModal');
 
 function initializeDeleteAll() {
@@ -536,6 +607,8 @@ function initializeDeleteAll() {
     const confirmDeleteAll = document.getElementById('confirmDeleteAll');
     const confirmDeleteCheckbox = document.getElementById('confirmDeleteCheckbox');
     const downloadDataBtn = document.getElementById('downloadDataBtn');
+
+    if (!deleteAllBtn) return;
 
     // Open delete all modal
     deleteAllBtn.addEventListener('click', openDeleteAllModal);
@@ -557,7 +630,7 @@ function initializeDeleteAll() {
 }
 
 function openDeleteAllModal() {
-    const students = getStudents();
+    const students = allStudents;
     const summaryBox = document.getElementById('deleteDataSummary');
 
     // Calculate summary
@@ -601,7 +674,7 @@ function openDeleteAllModal() {
 }
 
 function downloadAllData() {
-    const students = getStudents();
+    const students = allStudents;
 
     if (students.length === 0) {
         alert('No data to download!');
@@ -616,7 +689,7 @@ function downloadAllData() {
     ];
 
     const rows = students.map(s => [
-        s.id,
+        s._id || s.id,
         s.firstName,
         s.lastName,
         s.email,
@@ -645,23 +718,29 @@ function downloadAllData() {
     link.click();
     URL.revokeObjectURL(link.href);
 
-    // Show success message
     alert(`Downloaded ${students.length} student records to CSV file.`);
 }
 
-function executeDeleteAll() {
-    const students = getStudents();
-    const count = students.length;
+async function executeDeleteAll() {
+    const count = allStudents.length;
 
-    // Clear all student data
-    localStorage.removeItem('eduphysics_students');
+    if (count === 0) {
+        alert('No students to delete!');
+        return;
+    }
 
-    // Close modal
-    closeModal(deleteAllModal);
+    try {
+        // Delete all students one by one via API
+        for (const student of allStudents) {
+            await deleteStudentAPI(student._id || student.id);
+        }
 
-    // Reload page
-    alert(`Successfully deleted ${count} student records. The page will now reload.`);
-    location.reload();
+        closeModal(deleteAllModal);
+        alert(`Successfully deleted ${count} student records.`);
+        await loadStudents();
+    } catch (error) {
+        alert('Error deleting students: ' + error.message);
+    }
 }
 
 // Initialize Delete All feature when DOM is ready
