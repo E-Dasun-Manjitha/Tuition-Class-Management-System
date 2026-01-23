@@ -9,6 +9,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 from datetime import datetime
 import os
+import certifi
 
 app = Flask(__name__)
 
@@ -20,9 +21,9 @@ CORS(app, origins=[
     os.environ.get("FRONTEND_URL", "*")
 ])
 
-# MongoDB Configuration
+# MongoDB Configuration with SSL/TLS support for cloud deployment
 MONGO_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/eduphysics")
-client = MongoClient(MONGO_URI)
+client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = client.get_database()
 
 # Collections
