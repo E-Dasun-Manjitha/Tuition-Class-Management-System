@@ -14,18 +14,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load and display financial data
 function loadFinanceData() {
-    const students = getStudents();
-    updateOverviewCards(students);
-    updateClassRevenue(students);
-    updatePaymentTypeAnalytics(students);
-    updateMonthlyChart(students);
-    updateFeeDistribution(students);
-    updateTransactionsTable(students);
+    const allStudents = getAllStudents();
+    // Filter to get only verified or admin-added students for financial calculations
+    const verifiedStudents = getVerifiedStudents(allStudents);
+    
+    updateOverviewCards(verifiedStudents);
+    updateClassRevenue(verifiedStudents);
+    updatePaymentTypeAnalytics(allStudents); // Pass all students for payment type breakdown
+    updateMonthlyChart(verifiedStudents);
+    updateFeeDistribution(verifiedStudents);
+    updateTransactionsTable(verifiedStudents);
 }
 
-function getStudents() {
+function getAllStudents() {
     const data = localStorage.getItem(STUDENTS_KEY);
     return data ? JSON.parse(data) : [];
+}
+
+// Get only verified students (admin-added or verified online registrations)
+// Exclude pending students from financial calculations
+function getVerifiedStudents(students) {
+    return students.filter(s => {
+        // Include if no status (admin-added) or if status is 'verified'
+        return !s.status || s.status === 'verified';
+    });
+}
+
+// Legacy function for backward compatibility
+function getStudents() {
+    return getVerifiedStudents(getAllStudents());
 }
 
 // Update overview cards

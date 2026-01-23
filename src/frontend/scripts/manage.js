@@ -384,15 +384,28 @@ function verifyStudent(id, status) {
     const index = students.findIndex(s => s.id === id);
     if (index === -1) return;
 
-    students[index].status = status;
-    students[index].updatedAt = new Date().toISOString();
-    saveStudents(students);
+    if (status === 'rejected') {
+        // REJECT: Remove student completely from the system
+        // This removes both student data and their financial record
+        const rejectedStudent = students[index];
+        const updatedStudents = students.filter(s => s.id !== id);
+        saveStudents(updatedStudents);
 
-    closeModal(viewModal);
-    loadStudents();
+        closeModal(viewModal);
+        loadStudents();
 
-    // Show notification
-    alert(`Student registration ${status === 'verified' ? 'approved' : 'rejected'} successfully!`);
+        alert(`Registration for ${rejectedStudent.firstName} ${rejectedStudent.lastName} has been rejected and removed from the system.`);
+    } else {
+        // VERIFY: Update status to verified
+        students[index].status = 'verified';
+        students[index].updatedAt = new Date().toISOString();
+        saveStudents(students);
+
+        closeModal(viewModal);
+        loadStudents();
+
+        alert(`Student registration approved successfully! Student and financial data are now active.`);
+    }
 }
 
 // Edit student
