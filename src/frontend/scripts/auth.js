@@ -40,10 +40,35 @@ function initializeLogout() {
 function initializeNavigation() {
     const navToggle = document.getElementById('nav-toggle');
     const navMenu = document.getElementById('nav-menu');
+    const navActions = document.querySelector('.nav-actions');
 
     if (navToggle && navMenu) {
         navToggle.addEventListener('click', () => {
             navMenu.classList.toggle('active');
+            // Also toggle nav-actions to show logout button on mobile
+            if (navActions) {
+                navActions.classList.toggle('active');
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+                if (navActions) {
+                    navActions.classList.remove('active');
+                }
+            }
+        });
+
+        // Close mobile menu when clicking a nav link
+        navMenu.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                if (navActions) {
+                    navActions.classList.remove('active');
+                }
+            });
         });
     }
 }
