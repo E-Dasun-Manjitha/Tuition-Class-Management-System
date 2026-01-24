@@ -1,22 +1,30 @@
 /**
  * EduPhysics Academy - Frontend Configuration
  * ============================================
- * Edit this file to configure your API endpoints
+ * This file automatically detects the environment and uses the correct API URL
  * 
- * For Local Development:
- *   API_BASE_URL: 'http://127.0.0.1:5000/api'
- * 
- * For Production (after Render deployment):
- *   API_BASE_URL: 'https://your-backend.onrender.com/api'
+ * For Local Development: Uses http://127.0.0.1:5000/api
+ * For Production (Vercel + Render): Uses the Render backend URL
  */
+
+// Detect if running locally or in production
+const isLocalhost = window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.includes('5500');
+
+// ⚠️ IMPORTANT: Replace this with your actual Render backend URL!
+// Get your URL from: Render Dashboard → Your Service → Settings → URL
+const RENDER_BACKEND_URL = 'https://eduphysics-api.onrender.com';
 
 const CONFIG = {
     // ===========================================
     // API Configuration
     // ===========================================
 
-    // Backend API URL - CHANGE THIS FOR PRODUCTION!
-    API_BASE_URL: 'http://127.0.0.1:5000/api',
+    // Backend API URL - Automatically switches between local and production
+    API_BASE_URL: isLocalhost
+        ? 'http://127.0.0.1:5000/api'
+        : `${RENDER_BACKEND_URL}/api`,
 
     // API request timeout (milliseconds)
     API_TIMEOUT: 30000,
@@ -27,7 +35,7 @@ const CONFIG = {
     // Only needed if using direct frontend uploads
 
     CLOUDINARY: {
-        CLOUD_NAME: 'your_cloud_name',      // From Cloudinary Dashboard
+        CLOUD_NAME: 'dlggkuday',      // From Cloudinary Dashboard
         UPLOAD_PRESET: 'eduphysics_receipts' // Create in Cloudinary Settings
     },
 
