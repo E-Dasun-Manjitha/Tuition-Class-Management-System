@@ -6,6 +6,7 @@ Provides RESTful endpoints for student management
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pymongo import MongoClient
+from pymongo.errors import ServerSelectionTimeoutError, ConnectionFailure
 from bson import ObjectId
 from datetime import datetime
 import os
@@ -14,35 +15,94 @@ import certifi
 app = Flask(__name__)
 
 # CORS configuration - Allow your Vercel frontend
-CORS(app, origins=[
+# This accepts requests from any Vercel subdomain and your specific domain
+cors_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:5500",
-    "https://*.vercel.app",
-    os.environ.get("FRONTEND_URL", "*")
-])
+    "http://localhost:5500",
+    "https://eduphysics-academy.vercel.app",  # Your specific Vercel domain
+    "https://*.vercel.app",  # Any Vercel preview deployments
+]
+
+# Add custom frontend URL from environment if provided
+frontend_url = os.environ.get("FRONTEND_URL", "")
+if frontend_url:
+    # Ensure it has https:// prefix
+    if not frontend_url.startswith("http"):
+        frontend_url = f"https://{frontend_url}"
+    cors_origins.append(frontend_url)
+
+CORS(app, 
+     origins=cors_origins,
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
 # MongoDB Configuration with SSL/TLS support for cloud deployment
 MONGO_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/eduphysics")
-client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
-db = client.get_database()
 
-# Collections
-students_collection = db.students
-admins_collection = db.admins
+# Initialize MongoDB client with connection pooling and timeout settings
+try:
+    client = MongoClient(
+        MONGO_URI, 
+        tlsCAFile=certifi.where(),
+        serverSelectionTimeoutMS=5000,  # 5 second timeout
+        connectTimeoutMS=10000,
+        retryWrites=True,
+        w='majority'
+    )
+    # Test the connection
+    client.admin.command('ping')
+    print("✅ MongoDB connection successful!")
+    db = client.get_database()
+except Exception as e:
+    print(f"⚠️ MongoDB connection failed: {e}")
+    print("The application will retry connecting when requests are made.")
+    # Create a placeholder - will be initialized later
+    client = None
+    db = None
+
+def get_database():
+    """Get database connection, reconnecting if necessary"""
+    global client, db
+    if client is None or db is None:
+        try:
+            client = MongoClient(
+                MONGO_URI, 
+                tlsCAFile=certifi.where(),
+                serverSelectionTimeoutMS=5000,
+                connectTimeoutMS=10000,
+                retryWrites=True,
+                w='majority'
+            )
+            client.admin.command('ping')
+            db = client.get_database()
+            print("✅ MongoDB reconnection successful!")
+        except Exception as e:
+            print(f"❌ MongoDB connection error: {e}")
+            raise e
+    return db
+
+# Collections (will be initialized on first use)
+def get_students_collection():
+    return get_database().students
+
+def get_admins_collection():
+    return get_database().admins
 
 # Initialize default admin if not exists
 def init_admin():
-    if admins_collection.count_documents({}) == 0:
-        admins_collection.insert_one({
-            "username": "admin",
-            "password": "admin123",  # In production, use hashed passwords!
-            "created_at": datetime.utcnow()
-        })
-
-try:
-    init_admin()
-except Exception as e:
-    print(f"Database connection pending: {e}")
+    try:
+        admins = get_admins_collection()
+        if admins.count_documents({}) == 0:
+            admins.insert_one({
+                "username": "admin",
+                "password": "admin123",  # In production, use hashed passwords!
+                "created_at": datetime.utcnow()
+            })
+            print("✅ Default admin created")
+    except Exception as e:
+        print(f"⚠️ Admin initialization pending: {e}")
 
 # Helper function to convert ObjectId to string
 def serialize_doc(doc):
@@ -64,7 +124,7 @@ def login():
         username = data.get('username', '').strip()
         password = data.get('password', '')
 
-        admin = admins_collection.find_one({
+        admin = get_admins_collection().find_one({
             "username": username,
             "password": password
         })
@@ -117,7 +177,7 @@ def get_students():
                 {'mobile': {'$regex': search, '$options': 'i'}}
             ]
 
-        students = list(students_collection.find(query).sort('createdAt', -1))
+        students = list(get_students_collection().find(query).sort('createdAt', -1))
         
         return jsonify({
             'success': True,
@@ -132,7 +192,7 @@ def get_students():
 def get_student(student_id):
     """Get a specific student by ID"""
     try:
-        student = students_collection.find_one({'_id': ObjectId(student_id)})
+        student = get_students_collection().find_one({'_id': ObjectId(student_id)})
         
         if not student:
             return jsonify({'success': False, 'error': 'Student not found'}), 404
@@ -160,7 +220,7 @@ def create_student():
                 return jsonify({'success': False, 'error': f'{field} is required'}), 400
 
         # Check if email already exists
-        existing = students_collection.find_one({'email': data['email'].lower()})
+        existing = get_students_collection().find_one({'email': data['email'].lower()})
         if existing:
             return jsonify({'success': False, 'error': 'Email already registered'}), 409
 
@@ -179,7 +239,7 @@ def create_student():
             'updatedAt': datetime.utcnow()
         }
 
-        result = students_collection.insert_one(student)
+        result = get_students_collection().insert_one(student)
         student['_id'] = str(result.inserted_id)
 
         return jsonify({
@@ -210,7 +270,7 @@ def public_student_registration():
             return jsonify({'success': False, 'error': 'Payment receipt is required'}), 400
 
         # Check if email already exists
-        existing = students_collection.find_one({'email': data['email'].lower()})
+        existing = get_students_collection().find_one({'email': data['email'].lower()})
         if existing:
             return jsonify({'success': False, 'error': 'Email already registered'}), 409
 
@@ -233,7 +293,7 @@ def public_student_registration():
             'updatedAt': datetime.utcnow()
         }
 
-        result = students_collection.insert_one(student)
+        result = get_students_collection().insert_one(student)
         student['_id'] = str(result.inserted_id)
         
         # Don't return the full base64 receipt in response
@@ -259,20 +319,20 @@ def verify_student(student_id):
             return jsonify({'success': False, 'error': 'Invalid status'}), 400
 
         # Check if student exists
-        student = students_collection.find_one({'_id': ObjectId(student_id)})
+        student = get_students_collection().find_one({'_id': ObjectId(student_id)})
         if not student:
             return jsonify({'success': False, 'error': 'Student not found'}), 404
 
         if status == 'rejected':
             # If rejected, delete the student record completely
-            students_collection.delete_one({'_id': ObjectId(student_id)})
+            get_students_collection().delete_one({'_id': ObjectId(student_id)})
             return jsonify({
                 'success': True,
                 'message': 'Student registration rejected and removed from system'
             }), 200
         else:
             # If verified, update the status
-            students_collection.update_one(
+            get_students_collection().update_one(
                 {'_id': ObjectId(student_id)},
                 {'$set': {
                     'status': 'verified',
@@ -294,13 +354,13 @@ def update_student(student_id):
         data = request.get_json()
         
         # Check if student exists
-        student = students_collection.find_one({'_id': ObjectId(student_id)})
+        student = get_students_collection().find_one({'_id': ObjectId(student_id)})
         if not student:
             return jsonify({'success': False, 'error': 'Student not found'}), 404
 
         # Check email uniqueness if email is being changed
         if 'email' in data and data['email'].lower() != student['email']:
-            existing = students_collection.find_one({'email': data['email'].lower()})
+            existing = get_students_collection().find_one({'email': data['email'].lower()})
             if existing:
                 return jsonify({'success': False, 'error': 'Email already registered'}), 409
 
@@ -323,12 +383,12 @@ def update_student(student_id):
                 else:
                     update_data[field] = data[field]
 
-        students_collection.update_one(
+        get_students_collection().update_one(
             {'_id': ObjectId(student_id)},
             {'$set': update_data}
         )
 
-        updated_student = students_collection.find_one({'_id': ObjectId(student_id)})
+        updated_student = get_students_collection().find_one({'_id': ObjectId(student_id)})
 
         return jsonify({
             'success': True,
@@ -343,7 +403,7 @@ def update_student(student_id):
 def delete_student(student_id):
     """Delete a student"""
     try:
-        result = students_collection.delete_one({'_id': ObjectId(student_id)})
+        result = get_students_collection().delete_one({'_id': ObjectId(student_id)})
         
         if result.deleted_count == 0:
             return jsonify({'success': False, 'error': 'Student not found'}), 404
@@ -364,7 +424,7 @@ def get_analytics():
     try:
         # Only count verified students or admin-added students (no status field = admin added)
         # Exclude pending students from counts
-        all_students = list(students_collection.find())
+        all_students = list(get_students_collection().find())
         students = [s for s in all_students if s.get('status') != 'pending']
         total = len(students)
         
@@ -418,7 +478,7 @@ def get_finance_analytics():
     try:
         # Only count verified students or admin-added students (no status field)
         # Exclude pending students from financial calculations
-        all_students = list(students_collection.find())
+        all_students = list(get_students_collection().find())
         students = [s for s in all_students if s.get('status') != 'pending']
         
         # Total revenue (only from verified/admin-added students)
@@ -485,11 +545,12 @@ def get_finance_analytics():
 def health_check():
     """Health check endpoint"""
     try:
-        # Test database connection
-        client.admin.command('ping')
+        # Test database connection and initialize admin if needed
+        get_database()
+        init_admin()
         db_status = 'connected'
-    except:
-        db_status = 'disconnected'
+    except Exception as e:
+        db_status = f'disconnected: {str(e)}'
 
     return jsonify({
         'status': 'healthy',
