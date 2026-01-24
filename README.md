@@ -2,6 +2,10 @@
 
 A web application for managing tuition class registrations, payments, and student records for EduPhysics Academy.
 
+![CI Pipeline](https://github.com/E-Dasun-Manjitha/Tuition-Class-Management-System/workflows/CI%20Pipeline/badge.svg) 
+![Deploy](https://github.com/E-Dasun-Manjitha/Tuition-Class-Management-System/workflows/Deploy%20to%20Production/badge
+.svg)
+
 ## Group Information
 
 - **Student 1:** [E.Dasun Manjitha] - [ITBIN-2313-0062] - Role: DevOps Engineer
