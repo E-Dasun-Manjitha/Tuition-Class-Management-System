@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: eduphysics-api
+    runtime: python
+    region: singapore
+    plan: free
+    buildCommand: pip install -r src/backend/requirements.txt
+    startCommand: cd src/backend && gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false          # Set this in Render dashboard → Environment
+      - key: FRONTEND_URL
+        value: https://eduphysics-academy.vercel.app
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false          # Set this in Render dashboard → Environment
+      - key: CLOUDINARY_API_KEY
+        sync: false          # Set this in Render dashboard → Environment
+      - key: CLOUDINARY_API_SECRET
+        sync: false          # Set this in Render dashboard → Environment
+      - key: ADMIN_USERNAME
+        sync: false          # Set this in Render dashboard → Environment
+      - key: ADMIN_PASSWORD
+        sync: false          # Set this in Render dashboard → Environment

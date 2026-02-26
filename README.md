@@ -7,8 +7,6 @@ A web application for managing tuition class registrations, payments, and studen
 
 ## Group Information
 
-- **Student 1:** [E.Dasun Manjitha] - [ITBIN-2313-0062] - Role: DevOps Engineer
-- **Student 2:** [A.G.S Lakshan] - [ITBIN-2313-0055] - Role: Full stack Developer  
 
 
 ## Project Description
@@ -162,9 +160,11 @@ The workflows are in `.github/workflows/` folder.
 
 ## Live Deployment
 
-**Frontend live URL:** eduphysics-academy.vercel.app
+**Frontend live URL:** [https://eduphysics-academy.vercel.app](https://eduphysics-academy.vercel.app)
 
-**Backend API:** https://eduphysics-api.onrender.com
+**Backend API:** [https://eduphysics-api.onrender.com](https://eduphysics-api.onrender.com)
+
+> **Note:** The backend is hosted on Render's free tier. The first request after inactivity may take 30–50 seconds to wake up the server.
 
 4. **Environment variables** - Took some time to figure out how to set them up correctly on both Vercel and Render.
 
