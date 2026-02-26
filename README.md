@@ -7,7 +7,12 @@ A web application for managing tuition class registrations, payments, and studen
 
 ## Group Information
 
+Member 1) Name-Dasun Manjitha |  Index- ITBIN-2313-0062  | Role- Devops Engineer
+Member 2) Name-A.G.S.Lakshan |  Index- ITBIN-2313-0062  | Role- Full Stack Developer
 
+##Live Deployment Link 
+
+**Live URL:** https://eduphysics-academy.vercel.app/
 
 ## Project Description
 
