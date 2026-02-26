@@ -6,9 +6,9 @@ A web application for managing tuition class registrations, payments, and studen
 ![Deploy](https://github.com/E-Dasun-Manjitha/Tuition-Class-Management-System/workflows/Deploy%20to%20Production/badge.svg)
 
 ## Group Information
+ 
 
-
-
+##Live Deployment Link - https://eduphysics-academy.vercel.app
 ## Project Description
 
 This is a tuition class management system we built for managing Physical Science classes. The system allows students to register online and upload their payment receipts. Admins can then verify payments and manage all student records from a dashboard.
