@@ -3,11 +3,49 @@ name: Deploy to Production
 on:
   push:
     branches: [ main ]
+
 jobs:
-  deploy:
+  deploy-backend:
+    name: Deploy Backend to Render
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Deploy to PythonAnywhere
-        run: echo "Add deployment steps for PythonAnywhere or your platform here"
+
+      - name: Trigger Render Deploy
+        run: |
+          curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            --fail \
+            && echo "✅ Render deploy triggered successfully" \
+            || echo "⚠️ Render deploy hook not configured (add RENDER_DEPLOY_HOOK_URL secret)"
+
+  deploy-frontend:
+    name: Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to Vercel
+        run: |
+          if [ -n "${{ secrets.VERCEL_TOKEN }}" ]; then
+            vercel --prod \
+              --token "${{ secrets.VERCEL_TOKEN }}" \
+              --yes \
+              && echo "✅ Vercel deployed successfully"
+          else
+            echo "⚠️ Vercel token not configured (add VERCEL_TOKEN secret)"
+          fi
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
