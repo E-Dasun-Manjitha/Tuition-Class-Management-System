@@ -109,4 +109,3 @@ yarn-debug.log
 *.cert
 *.crt
 secrets.json
-config.js
