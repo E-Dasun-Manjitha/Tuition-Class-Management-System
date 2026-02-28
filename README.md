@@ -7,7 +7,13 @@ A web application for managing tuition class registrations, payments, and studen
 
 ## Group Information
 
+- **Student 1:** Name - Dasun Manjitha | Index No - ITBIN-2313-0062 | Role: DevOps Engineer
 
+- **Student 2:** Name - Samintha Lakshan | Index No - ITBIN-2313-0055 | Role: Full stack Developer  
+
+## Live Deployment URL
+
+🌐 <https://eduphysics-academy.vercel.app/>
 
 ## Project Description
 
@@ -49,7 +55,7 @@ When working on new features, we created branches like `feature/student-registra
 
 ## Individual Contributions
 
-### [E.Dasun Manjitha] - DevOps Engineer
+### Dasun Manjitha - DevOps Engineer
 - Set up the GitHub repository
 - Created CI/CD pipelines using GitHub Actions
 - Configured deployment on Vercel and Render
@@ -61,8 +67,10 @@ Commits:
 - Added GitHub Actions workflow for CI
 - Configured Vercel deployment
 - Added environment configuration
+- Added Missing files .gitignore
+- Updated README.md with Live Deployment URL
 
-### [A.G.S Lakshan] - Full Stack Developer
+### Samintha Lakshan - Full Stack Developer
 - Built all the HTML pages (index, manage, register, finance)
 - Created CSS styling and responsive layouts
 - Implemented JavaScript functionality
@@ -135,7 +143,7 @@ set CLOUDINARY_API_SECRET=your_secret
 # Run server
 python app.py
 # Runs at http://127.0.0.1:5000
-
+```
 
 ## Deployment Process
 
@@ -157,16 +165,15 @@ The workflows are in `.github/workflows/` folder.
 
 3. **Merge conflicts** - We had some conflicts when multiple people edited similar files. We solved this by communicating better and pulling changes frequently.
 
+4. **Environment variables** - Took some time to figure out how to set them up correctly on both Vercel and Render.
 
-## Live Deployment
+## Live Deployment URL
 
-**Frontend live URL:** [https://eduphysics-academy.vercel.app](https://eduphysics-academy.vercel.app)
+**Frontend live URL:** https://eduphysics-academy.vercel.app/
 
-**Backend API:** [https://eduphysics-api.onrender.com](https://eduphysics-api.onrender.com)
+**Backend API:** https://eduphysics-api.onrender.com
 
 > **Note:** The backend is hosted on Render's free tier. The first request after inactivity may take 30–50 seconds to wake up the server.
-
-4. **Environment variables** - Took some time to figure out how to set them up correctly on both Vercel and Render.
 
 ## Default Login
 
