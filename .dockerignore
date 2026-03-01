@@ -1,0 +1,118 @@
+# =============================================================================
+# EduPhysics Academy - .dockerignore
+# =============================================================================
+# Files listed here are EXCLUDED from the Docker build context.
+# Benefits:
+#   1. Smaller build context → faster uploads to the Docker daemon
+#   2. Prevents accidental inclusion of secrets (e.g., .env files)
+#   3. Avoids cache-busting caused by irrelevant file changes
+#
+# This file lives at the project root and applies to both backend and
+# frontend builds when "context:" points to a subdirectory. Individual
+# Dockerfiles can be placed inside subdirectories for more granular control.
+# =============================================================================
+
+# ---- Secrets & Environment Variables ----
+# NEVER include .env files in images — they contain credentials!
+.env
+.env.*
+*.env
+src/backend/.env
+src/backend/.env.*
+
+# ---- Version Control ----
+.git
+.gitignore
+.github
+
+# ---- Docker files themselves ----
+# These are build-time artefacts, not needed inside the container
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile
+**Dockerfile*
+.dockerignore
+
+# ---- Python Virtual Environments & Cache ----
+# These can be hundreds of MB and should NEVER enter the image
+venv/
+env/
+ENV/
+.venv/
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+*.whl
+
+# ---- Testing & Coverage ----
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+*.cover
+nosetests.xml
+coverage.xml
+tests/
+test/
+
+# ---- Type checking & Linting ----
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ---- IDE / Editor Configuration ----
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# ---- OS Generated Files ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# ---- Logs ----
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# ---- Node Modules (frontend only, not applicable here but safe to list) ----
+node_modules/
+npm-debug.log
+.npm
+.yarn-integrity
+
+# ---- Documentation (not needed at runtime) ----
+README.md
+docs/
+*.md
+
+# ---- Deployment Configuration (for other platforms) ----
+render.yaml
+vercel.json
+.github/
+
+# ---- Database files (should not be in image) ----
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- Certificates & Keys ----
+*.pem
+*.key
+*.cert
+*.crt
+secrets.json
