@@ -34,6 +34,9 @@ Main things it does:
 - GitHub Actions
 - Vercel (frontend hosting)
 - Render (backend hosting)
+- **Docker & Docker Compose** (containerisation)
+- **Nginx** (frontend web server in Docker)
+- **Gunicorn** (Python WSGI server in Docker)
 
 ## Features
 
@@ -43,6 +46,207 @@ Main things it does:
 - Payment verification system
 - Finance analytics and reporting
 - Responsive design
+
+---
+
+## 🐳 Docker Setup (Containerised Deployment)
+
+This section describes how to run the complete application stack using Docker and Docker Compose. **No Python, pip, or Node.js installation is required** — Docker handles everything.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (v24 or newer) — includes Docker Engine and Docker Compose
+- Git
+
+### Repository Structure (Docker-relevant files)
+
+```
+Tuition-Class-Management-System/
+├── docker-compose.yml          ← Orchestrates all services
+├── .dockerignore               ← Excludes files from build context
+├── .env.example                ← Template for environment variables
+├── docker/
+│   └── mongo-init.js           ← Seeds the local MongoDB on first run
+├── src/
+│   ├── backend/
+│   │   ├── Dockerfile          ← Builds the Flask/Gunicorn backend image
+│   │   ├── app.py
+│   │   └── requirements.txt
+│   └── frontend/
+│       ├── Dockerfile          ← Builds the Nginx frontend image
+│       ├── nginx.conf          ← Nginx server configuration
+│       └── *.html / scripts/ / styles/
+```
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Docker Network                        │
+│                  (eduphysics-network)                    │
+│                                                          │
+│  ┌───────────────┐    /api/*     ┌──────────────────┐   │
+│  │   FRONTEND    │ ─────────────▶│    BACKEND       │   │
+│  │  Nginx:80     │  proxy_pass   │  Gunicorn:5000   │   │
+│  │  (static HTML │               │  (Flask API)     │   │
+│  │   CSS, JS)    │               └────────┬─────────┘   │
+│  └───────────────┘                        │              │
+│         ▲                                 │ MongoDB      │
+│         │ Port 80                         ▼ driver       │
+│    ┌────┴────┐                  ┌──────────────────┐     │
+│    │  HOST   │                  │     MONGO        │     │
+│    │localhost│                  │  MongoDB:27017   │     │
+│    └─────────┘                  │  (local dev DB)  │     │
+│                                 └──────────────────┘     │
+└─────────────────────────────────────────────────────────┘
+```
+
+**How requests flow:**
+1. Browser opens `http://localhost` → hits Nginx on port 80
+2. Nginx serves static HTML/CSS/JS directly
+3. JavaScript calls `/api/*` → Nginx proxies these to `backend:5000`
+4. Flask processes the request and queries MongoDB
+
+### Quick Start
+
+#### Step 1 — Clone the repository
+
+```bash
+git clone https://github.com/E-Dasun-Manjitha/Tuition-Class-Management-System.git
+cd Tuition-Class-Management-System
+```
+
+#### Step 2 — Configure environment variables
+
+```bash
+# Windows (Command Prompt)
+copy .env.example .env
+
+# Windows (PowerShell)
+Copy-Item .env.example .env
+
+# Mac / Linux
+cp .env.example .env
+```
+
+Open `.env` and review the values. The defaults work out-of-the-box with the local MongoDB container. See [Environment Variables](#environment-variables) for options.
+
+#### Step 3 — Build and start all services
+
+```bash
+docker compose up -d --build
+```
+
+- `--build` forces Docker to rebuild images (required on first run and after code changes)
+- `-d` runs containers in the background (detached mode)
+
+#### Step 4 — Access the application
+
+| Service | URL | Description |
+|---|---|---|
+| **Frontend** | http://localhost | Main application (served by Nginx) |
+| **Backend API** | http://localhost:5000 | Direct Flask API access |
+| **API Health** | http://localhost:5000/api/health | Health check endpoint |
+
+**Default admin login:**
+- Username: `admin`
+- Password: `admin123`
+
+---
+
+### Common Commands
+
+```bash
+# Start all services (rebuild images)
+docker compose up -d --build
+
+# Start all services (use cached images)
+docker compose up -d
+
+# View logs from all services
+docker compose logs -f
+
+# View logs from a specific service
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f mongo
+
+# Stop all services (keeps data)
+docker compose down
+
+# Stop all services AND delete all data volumes
+docker compose down -v
+
+# Rebuild a single service
+docker compose up -d --build backend
+
+# Check health status of containers
+docker compose ps
+
+# Open a shell inside a running container
+docker compose exec backend sh
+docker compose exec frontend sh
+```
+
+---
+
+### Environment Variables
+
+The following variables can be set in your `.env` file:
+
+| Variable | Default | Description |
+|---|---|---|
+| `MONGODB_URI` | `mongodb://eduphysics_user:eduphysics_password@mongo:27017/eduphysics` | MongoDB connection string. Use local container (default) or Atlas URI |
+| `MONGO_ROOT_USERNAME` | `admin` | Root username for local MongoDB container |
+| `MONGO_ROOT_PASSWORD` | `adminpassword` | Root password for local MongoDB container |
+| `FLASK_ENV` | `production` | Flask environment (`development` or `production`) |
+| `FRONTEND_URL` | `http://localhost` | Frontend URL added to CORS allow-list |
+| `CLOUDINARY_CLOUD_NAME` | *(empty)* | Cloudinary cloud name (optional) |
+| `CLOUDINARY_API_KEY` | *(empty)* | Cloudinary API key (optional) |
+| `CLOUDINARY_API_SECRET` | *(empty)* | Cloudinary API secret (optional) |
+
+#### Using MongoDB Atlas (Cloud) instead of local MongoDB
+
+To connect to your Atlas cluster instead of the local container, update `.env`:
+
+```env
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/eduphysics?retryWrites=true&w=majority
+```
+
+The `mongo` container will still start, but the backend will use Atlas.
+
+---
+
+### Troubleshooting
+
+**Port 80 is already in use**
+```bash
+# Find what is using port 80 and stop it, or change the port in docker-compose.yml:
+# ports: - "8080:80"   ← change host port to 8080, then open http://localhost:8080
+```
+
+**Backend fails to connect to MongoDB**
+```bash
+# Check backend logs
+docker compose logs backend
+
+# Verify MongoDB is healthy
+docker compose ps
+```
+
+**Images are out of date after code changes**
+```bash
+# Always use --build to rebuild images after changing source files
+docker compose up -d --build
+```
+
+**Reset everything (fresh start)**
+```bash
+docker compose down -v          # Removes containers AND volumes (all data lost)
+docker compose up -d --build    # Rebuild images and start fresh
+```
+
+---
 
 ## Branch Strategy
 
@@ -61,6 +265,7 @@ When working on new features, we created branches like `feature/student-registra
 - Configured deployment on Vercel and Render
 - Managed environment variables and secrets
 - Wrote deployment documentation
+- **Implemented full Docker containerisation (Assignment 2)**
 
 Commits:
 - Initial repository setup
@@ -69,6 +274,7 @@ Commits:
 - Added environment configuration
 - Added Missing files .gitignore
 - Updated README.md with Live Deployment URL
+- Added Docker containerisation (Dockerfile, docker-compose.yml, .dockerignore)
 
 ### Samintha Lakshan - Full Stack Developer
 - Built all the HTML pages (index, manage, register, finance)
@@ -97,7 +303,7 @@ Commits:
 - Added Cloudinary integration
 
 
-## Setup Instructions
+## Setup Instructions (Without Docker)
 
 ### Prerequisites
 - Node.js (version 18 or higher)
@@ -166,6 +372,8 @@ The workflows are in `.github/workflows/` folder.
 3. **Merge conflicts** - We had some conflicts when multiple people edited similar files. We solved this by communicating better and pulling changes frequently.
 
 4. **Environment variables** - Took some time to figure out how to set them up correctly on both Vercel and Render.
+
+5. **Docker networking** - Connecting the Nginx frontend to the Flask backend inside Docker required setting up an internal bridge network and configuring Nginx as a reverse proxy so the frontend JavaScript could call `/api/*` without CORS issues.
 
 ## Live Deployment URL
 
