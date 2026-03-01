@@ -1,0 +1,170 @@
+# =============================================================================
+# EduPhysics Academy - Docker Compose Orchestration
+# =============================================================================
+# Defines the complete application stack:
+#   - frontend  : Nginx serving static HTML/CSS/JS (port 80)
+#   - backend   : Python Flask API via Gunicorn (port 5000, internal only)
+#   - mongo     : Local MongoDB instance for development (port 27017)
+#
+# Usage:
+#   Start with MongoDB Atlas (cloud):  docker compose --profile cloud up -d
+#   Start with local MongoDB:          docker compose --profile local up -d
+#   Start all services:                docker compose up -d
+#   View logs:                         docker compose logs -f
+#   Stop all:                          docker compose down
+# =============================================================================
+
+version: "3.9"
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # FRONTEND SERVICE
+  # Nginx serving the static HTML/CSS/JS application.
+  # Nginx also acts as a reverse proxy, forwarding /api/* requests to the
+  # backend service — this eliminates CORS issues and is the standard pattern.
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./src/frontend # Docker build context is the frontend directory
+      dockerfile: Dockerfile # Uses src/frontend/Dockerfile
+    container_name: eduphysics-frontend
+    ports:
+      - "80:80" # Map host port 80 → container port 80
+    depends_on:
+      backend:
+        condition: service_healthy # Wait for backend to pass its health check
+    networks:
+      - eduphysics-network
+    restart: unless-stopped # Auto-restart on crashes, stop only on explicit stop
+    environment:
+      # Nginx has no runtime env vars; this is here for documentation purposes
+      - NGINX_HOST=localhost
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s # Short grace period — Nginx starts almost instantly
+
+  # ---------------------------------------------------------------------------
+  # BACKEND SERVICE
+  # Python Flask application served by Gunicorn (production WSGI server).
+  # The service is NOT directly exposed to the host (no ports mapping) in
+  # production — all traffic comes through Nginx for security.
+  # For development debugging, the port is mapped so you can call /api/* directly.
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./src/backend # Docker build context is the backend directory
+      dockerfile: Dockerfile # Uses src/backend/Dockerfile
+    container_name: eduphysics-backend
+    ports:
+      - "5000:5000" # Exposed for direct API access during development
+    environment:
+      # ------------------------------------------------------------------
+      # Database — override with your MongoDB Atlas URI via .env file or
+      # by setting env vars before running docker compose.
+      # Default falls back to the local MongoDB container service below.
+      # ------------------------------------------------------------------
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017/eduphysics}
+
+      # ------------------------------------------------------------------
+      # Flask / Gunicorn settings
+      # ------------------------------------------------------------------
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - PORT=5000
+
+      # ------------------------------------------------------------------
+      # CORS — allow requests from the Nginx frontend container and the
+      # Vercel production domain. The frontend container is at /api/* via
+      # Nginx proxy so the origin is the host running Docker.
+      # ------------------------------------------------------------------
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost}
+
+      # ------------------------------------------------------------------
+      # Cloudinary (optional — only needed if your app uploads images via
+      # the backend). Leave blank if using direct frontend-to-Cloudinary upload.
+      # ------------------------------------------------------------------
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-}
+    depends_on:
+      mongo:
+        condition: service_healthy # Wait for MongoDB to be ready before starting Flask
+    networks:
+      - eduphysics-network
+    restart: unless-stopped
+    healthcheck:
+      # Uses the /api/health endpoint built into app.py
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s # Give Flask/Gunicorn time to start and connect to DB
+    volumes:
+      # Named volume for any runtime-generated files (e.g., logs).
+      # Source code is baked into the image — do NOT mount src/ here in production.
+      - backend-logs:/app/logs
+
+  # ---------------------------------------------------------------------------
+  # LOCAL MONGODB SERVICE
+  # A local MongoDB instance for development and testing.
+  # In production, replace the MONGODB_URI env var with your MongoDB Atlas URI
+  # and the backend will connect to Atlas instead of this container.
+  #
+  # NOTE: This container persists data via a named volume (mongo-data).
+  # To reset the database: docker compose down -v
+  # ---------------------------------------------------------------------------
+  mongo:
+    image: mongo:7.0 # Official MongoDB image, version pinned for reproducibility
+    container_name: eduphysics-mongo
+    # MongoDB is intentionally NOT exposed to the host (no `ports:` mapping)
+    # to prevent external access. Only services on the internal Docker network
+    # can reach it — this is a security best practice.
+    environment:
+      # Root credentials for the MongoDB instance.
+      # These are development defaults; in production use Docker secrets or
+      # a secrets manager instead of plain environment variables.
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-adminpassword}
+      - MONGO_INITDB_DATABASE=eduphysics
+    networks:
+      - eduphysics-network
+    restart: unless-stopped
+    volumes:
+      # Persist MongoDB data between container restarts.
+      # Without this, all data would be lost every time the container stops.
+      - mongo-data:/data/db
+      # Mount the initialisation script to seed default data on first run.
+      - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    healthcheck:
+      # mongosh ping confirms MongoDB is accepting connections
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s # MongoDB takes a moment to initialise its data files
+
+# =============================================================================
+# NETWORKS
+# A dedicated bridge network isolates application containers from each other
+# and from other Docker networks on the host. Only containers explicitly
+# attached to this network can communicate with each other.
+# =============================================================================
+networks:
+  eduphysics-network:
+    driver: bridge
+    name: eduphysics-network
+
+# =============================================================================
+# VOLUMES
+# Named volumes are managed by Docker and persist beyond container lifecycles.
+#   mongo-data    – stores MongoDB data files
+#   backend-logs  – stores application log files
+# =============================================================================
+volumes:
+  mongo-data:
+    name: eduphysics-mongo-data
+  backend-logs:
+    name: eduphysics-backend-logs
