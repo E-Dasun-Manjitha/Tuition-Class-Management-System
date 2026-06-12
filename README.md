@@ -62,6 +62,7 @@ This section describes how to run the complete application stack using Docker an
 
 ```
 Tuition-Class-Management-System/
+├── Dockerfile                  ← Root multi-stage build (backend)
 ├── docker-compose.yml          ← Orchestrates all services
 ├── .dockerignore               ← Excludes files from build context
 ├── .env.example                ← Template for environment variables
@@ -140,6 +141,8 @@ docker compose up -d --build
 - `--build` forces Docker to rebuild images (required on first run and after code changes)
 - `-d` runs containers in the background (detached mode)
 
+> **Note:** `docker compose up --build` automatically builds all images. If you prefer to build or run images individually, see [Building Images Individually](#building-images-individually) below.
+
 #### Step 4 — Access the application
 
 | Service | URL | Description |
@@ -186,6 +189,64 @@ docker compose ps
 # Open a shell inside a running container
 docker compose exec backend sh
 docker compose exec frontend sh
+```
+
+---
+
+### Building Images Individually
+
+If you want to build and run the Docker images **without** Docker Compose:
+
+#### Build the images
+
+```bash
+# Build the backend image from the root Dockerfile (multi-stage)
+docker build -t eduphysics-backend .
+
+# Build the frontend image
+docker build -t eduphysics-frontend ./src/frontend
+
+# Build the backend image from its subdirectory Dockerfile
+docker build -t eduphysics-backend-alt ./src/backend
+```
+
+#### Run the containers
+
+```bash
+# Create the network
+docker network create eduphysics-network
+
+# Run MongoDB
+docker run -d --name eduphysics-mongo \
+  --network eduphysics-network \
+  -e MONGO_INITDB_ROOT_USERNAME=admin \
+  -e MONGO_INITDB_ROOT_PASSWORD=adminpassword \
+  -e MONGO_INITDB_DATABASE=eduphysics \
+  -v eduphysics-mongo-data:/data/db \
+  mongo:7.0
+
+# Run the backend
+docker run -d --name eduphysics-backend \
+  --network eduphysics-network \
+  -p 5000:5000 \
+  -e MONGODB_URI=mongodb://admin:adminpassword@eduphysics-mongo:27017/eduphysics?authSource=admin \
+  -e FLASK_ENV=production \
+  -e FRONTEND_URL=http://localhost \
+  eduphysics-backend
+
+# Run the frontend
+docker run -d --name eduphysics-frontend \
+  --network eduphysics-network \
+  -p 80:80 \
+  eduphysics-frontend
+```
+
+#### Stop and remove individual containers
+
+```bash
+docker stop eduphysics-frontend eduphysics-backend eduphysics-mongo
+docker rm eduphysics-frontend eduphysics-backend eduphysics-mongo
+docker network rm eduphysics-network
 ```
 
 ---
