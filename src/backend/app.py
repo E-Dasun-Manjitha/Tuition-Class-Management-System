@@ -41,16 +41,22 @@ CORS(app,
 # MongoDB Configuration with SSL/TLS support for cloud deployment
 MONGO_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/eduphysics")
 
+def get_mongo_client_kwargs(uri):
+    """Determine connection parameters, enabling TLS only for Atlas or when requested"""
+    kwargs = {
+        'serverSelectionTimeoutMS': 5000,
+        'connectTimeoutMS': 10000,
+        'retryWrites': True,
+        'w': 'majority'
+    }
+    # Only enable SSL/TLS if it is a DNS seedlist (Atlas) or explicitly specified
+    if "mongodb+srv://" in uri or "ssl=true" in uri.lower() or "tls=true" in uri.lower():
+        kwargs['tlsCAFile'] = certifi.where()
+    return kwargs
+
 # Initialize MongoDB client with connection pooling and timeout settings
 try:
-    client = MongoClient(
-        MONGO_URI, 
-        tlsCAFile=certifi.where(),
-        serverSelectionTimeoutMS=5000,  # 5 second timeout
-        connectTimeoutMS=10000,
-        retryWrites=True,
-        w='majority'
-    )
+    client = MongoClient(MONGO_URI, **get_mongo_client_kwargs(MONGO_URI))
     # Test the connection
     client.admin.command('ping')
     print("✅ MongoDB connection successful!")
@@ -67,14 +73,7 @@ def get_database():
     global client, db
     if client is None or db is None:
         try:
-            client = MongoClient(
-                MONGO_URI, 
-                tlsCAFile=certifi.where(),
-                serverSelectionTimeoutMS=5000,
-                connectTimeoutMS=10000,
-                retryWrites=True,
-                w='majority'
-            )
+            client = MongoClient(MONGO_URI, **get_mongo_client_kwargs(MONGO_URI))
             client.admin.command('ping')
             db = client.get_database()
             print("✅ MongoDB reconnection successful!")

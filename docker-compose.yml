@@ -39,7 +39,7 @@ services:
       # Nginx has no runtime env vars; this is here for documentation purposes
       - NGINX_HOST=localhost
     healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/" ]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/" ]
       interval: 30s
       timeout: 5s
       retries: 3
